@@ -28,15 +28,44 @@ class CircularSegmentedControl: UIControl {
 			mySegments = []
 			let segSize = 360.0 / Double(titles.count)
 			var d: Double = 0.0
-			for t in titles {
+			for (i, t) in titles.enumerated() {
 				var seg = MySegment()
 				seg.title = t
 				seg.startAngleInDegrees = d
-				seg.endAngleInDegrees = d + segSize
+				if !segmentWidthsInDegrees.isEmpty {
+					if i == titles.count - 1, segmentWidthsInDegrees.count < titles.count {
+						d = 360.0
+					} else {
+						d += segmentWidthsInDegrees[i]
+					}
+				} else {
+					d += segSize
+				}
+				seg.endAngleInDegrees = d
 				mySegments.append(seg)
-				d += segSize
 			}
 			updateLayout()
+		}
+	}
+	public var segmentWidthsInDegrees: [Double] = [] {
+		didSet {
+			if !mySegments.isEmpty {
+				guard segmentWidthsInDegrees.count >= mySegments.count - 1 else {
+					//fatalError("Must set segment widths to 1 less than titles count")
+					return
+				}
+				var d: Double = 0.0
+				for i in 0..<mySegments.count {
+					mySegments[i].startAngleInDegrees = d
+					if i == mySegments.count - 1, segmentWidthsInDegrees.count < mySegments.count {
+						mySegments[i].endAngleInDegrees = 360.0
+					} else {
+						d += segmentWidthsInDegrees[i]
+						mySegments[i].endAngleInDegrees = d
+					}
+				}
+				updateLayout()
+			}
 		}
 	}
 	
@@ -82,8 +111,6 @@ class CircularSegmentedControl: UIControl {
 	
 	private var myBounds: CGRect = .zero
 	
-	// Initializers
-	
 	init() {
 		super.init(frame: .zero)
 		commonInit()
@@ -117,7 +144,7 @@ class CircularSegmentedControl: UIControl {
 		segmentLayer.lineWidth = 1.0
 		
 		segmentLayer.shadowColor = UIColor.black.cgColor
-		segmentLayer.shadowOpacity = 0.25
+		segmentLayer.shadowOpacity = 0.20
 		segmentLayer.shadowOffset = .zero
 		segmentLayer.shadowRadius = 2.0
 		
@@ -172,12 +199,16 @@ class CircularSegmentedControl: UIControl {
 			for i in 0..<mySegments.count {
 				d1 = mySegments[i].startAngleInDegrees.doubleToRadians()
 				d2 = mySegments[i].endAngleInDegrees.doubleToRadians()
+				
 				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
+				
 				pLines.move(to: pOuter.currentPoint)
 				pLines.addLine(to: pInner.currentPoint)
+				
 				d1 += originDegrees.doubleToRadians()
 				d2 += originDegrees.doubleToRadians()
+				
 				let pSeg = UIBezierPath()
 				pSeg.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pSeg.addArc(withCenter: cntr, radius: r2, startAngle: d2, endAngle: d1, clockwise: false)
@@ -196,12 +227,22 @@ class CircularSegmentedControl: UIControl {
 				])
 				
 				v.text = mySegments[i].title
-				v.startAngle = (mySegments[i].midAngleInDegrees).doubleToRadians()
+				v.startAngle = ((mySegments[i].midAngleInDegrees) + originDegrees).doubleToRadians()
 				v.radius = r1 - ringWidth / 2.0
 				v.textColor = textColor
 				v.font = font
 				arcTexts.append(v)
 
+			}
+			
+			// if segments don't fill the circle, add a separator line at 360.0 degrees
+			if let seg = mySegments.last, floor(seg.endAngleInDegrees) < 360.0 {
+				print("add last line")
+				d2 = (360.0).doubleToRadians()
+				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
+				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
+				pLines.move(to: pOuter.currentPoint)
+				pLines.addLine(to: pInner.currentPoint)
 			}
 			
 			pLines.append(UIBezierPath(ovalIn: bounds))
@@ -221,6 +262,9 @@ class CircularSegmentedControl: UIControl {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if let dl = displayLink, !dl.isPaused {
+			return
+		}
 		guard let t = touches.first else { return }
 		let p = t.location(in: self)
 		
@@ -228,6 +272,7 @@ class CircularSegmentedControl: UIControl {
 			if mySegments[i].path.contains(p) {
 				animateSegment(selectedSegment, toSeg: i)
 				selectedSegment = i
+				self.sendActions(for: .valueChanged)
 				break
 			}
 		}
@@ -297,6 +342,9 @@ class CircularSegmentedControl: UIControl {
 		selectedSegment = n
 	}
 	
+	/*
+		Arc with rounded corners - based on https://stackoverflow.com/a/61977919/6257435
+	 */
 	func drawSegment(startDegree: Double, endDegree: Double) {
 		
 		let startAngle = (startDegree + 1.0).doubleToRadians()

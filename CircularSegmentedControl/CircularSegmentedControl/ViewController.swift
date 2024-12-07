@@ -28,14 +28,50 @@ class ViewController: UIViewController {
 			cSeg.heightAnchor.constraint(equalTo: cSeg.widthAnchor),
 		])
 
-		let formatter = DateFormatter()
-		formatter.locale = Locale.current // Use the user's current locale
-		formatter.calendar = Calendar.current // Use the user's current calendar
-		cSeg.titles = formatter.weekdaySymbols
-		cSeg.font = .systemFont(ofSize: 13.0, weight: .light)
+		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 90.0, 45.0, 20.0, 30.0]
+
+		// sample segment titles
+		//cSeg.titles = SampleSegmentTitles().daysOfTheWeek
+		//cSeg.titles = SampleSegmentTitles().uiKitNamedColors
+		cSeg.titles = SampleSegmentTitles().alphabet(numChars: 6)
+		
+		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 90.0, 45.0, 75.0, 60.0]
+		cSeg.segmentWidthsInDegrees = [30.0, 30.0, 40.0, 35.0, 45.0, 20.0]
+		
+		//cSeg.originDegrees = -45.0
+
+		cSeg.font = .systemFont(ofSize: 15.0, weight: .light)
 		cSeg.textColor = .systemBlue
+		
+		cSeg.addTarget(self, action: #selector(valChanged(_:)), for: .valueChanged)
 	}
 
+	@objc func valChanged(_ csc: CircularSegmentedControl) {
+		print("Segment Changed:", csc.selectedSegment)
+	}
 
 }
 
+class SampleSegmentTitles: NSObject {
+	
+	var daysOfTheWeek: [String] = {
+		let formatter = DateFormatter()
+		formatter.locale = Locale.current // Use the user's current locale
+		formatter.calendar = Calendar.current // Use the user's current calendar
+		return formatter.weekdaySymbols
+	}()
+
+	func alphabet(numChars: Int) -> [String] {
+		return (65..<(65 + numChars)).map { String(UnicodeScalar($0)!) }
+	}
+	
+	let uiKitNamedColors: [String] = [
+		"red",
+		"green",
+		"blue",
+		"cyan",
+		"magenta",
+		"yellow",
+	]
+	
+}
