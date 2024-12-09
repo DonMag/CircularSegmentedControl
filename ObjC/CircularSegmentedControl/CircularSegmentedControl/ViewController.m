@@ -9,7 +9,9 @@
 #import "CircularSegmentedControl.h"
 
 @interface ViewController ()
-
+{
+	CircularSegmentedControl *csc;
+}
 @end
 
 @implementation ViewController
@@ -17,7 +19,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 
-	CircularSegmentedControl *csc = [CircularSegmentedControl new];
+	csc = [CircularSegmentedControl new];
 	csc.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:csc];
 	
@@ -30,9 +32,18 @@
 		[csc.heightAnchor constraintEqualToAnchor:csc.widthAnchor],
 	]];
 	
-	csc.titles = @[@"A", @"B", @"C", @"D", @"E"];
-
+	csc.titles = @[@"A", @"B", @"C", @"D", @"E", @"F"];
+	csc.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightLight];
+	csc.textColor = UIColor.redColor;
+	csc.segmentWidthsInDegrees = @[@80.0, @30.0, @45.0, @60.0, @30.0];
+	
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	NSLog(@"set 1");
+	csc.textColor = UIColor.blueColor;
+	csc.font = [UIFont systemFontOfSize:12.0 weight:UIFontWeightBold];
+	csc.ringWidth = 60.0;
+}
 
 @end

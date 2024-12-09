@@ -24,9 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) CGFloat cornerRadius;
 @property (nonatomic, assign) NSInteger selectedSegmentIndex;
 
-- (void)setSelectedSegmentIndex:(NSInteger)index animated:(BOOL)animated;
-- (void)setTitles:(NSArray<NSString *> *)titles;
-
 @end
 
 @interface ArcTextView : UIView

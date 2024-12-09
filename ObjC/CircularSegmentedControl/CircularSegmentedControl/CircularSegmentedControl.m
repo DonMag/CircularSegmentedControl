@@ -10,7 +10,7 @@
 
 @interface CircularSegmentedControl ()
 
-@property (nonatomic, assign) NSInteger _selectedSegment;
+@property (nonatomic, assign) NSInteger m_selectedSegment;
 @property (nonatomic, strong) NSMutableArray <Segment *> *theSegments;
 @property (nonatomic, strong) CAShapeLayer *ringLayer;
 @property (nonatomic, strong) CAShapeLayer *linesLayer;
@@ -319,8 +319,8 @@
 	if (t >= 1.0) {
 		// Animation complete
 		self.displayLink.paused = YES;
-		[self drawSegmentWithStartDegree:self.theSegments[self._selectedSegment].startAngleInDegrees
-							   endDegree:self.theSegments[self._selectedSegment].endAngleInDegrees];
+		[self drawSegmentWithStartDegree:self.theSegments[self.m_selectedSegment].startAngleInDegrees
+							   endDegree:self.theSegments[self.m_selectedSegment].endAngleInDegrees];
 		return;
 	}
 	
@@ -336,18 +336,21 @@
 	return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
 
+- (void)setSelectedSegmentIndex:(NSInteger)index {
+	[self setSelectedSegmentIndex:index animated:NO];
+}
 - (void)setSelectedSegmentIndex:(NSInteger)index animated:(BOOL)animated {
-	if (animated && self._selectedSegment > -1) {
-		[self animateSegmentFrom:self._selectedSegment to:index];
+	if (animated && self.m_selectedSegment > -1) {
+		[self animateSegmentFrom:self.m_selectedSegment to:index];
 	} else {
 		[self updateSegment:index];
 	}
-	self._selectedSegment = index;
+	self.m_selectedSegment = index;
 }
 
 - (void)updateSegment:(NSInteger)index {
 	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees endDegree:_theSegments[index].endAngleInDegrees];
-	self._selectedSegment = index;
+	self.m_selectedSegment = index;
 }
 
 - (void)setTitles:(NSArray<NSString *> *)titles {
@@ -381,6 +384,86 @@
 	[self updateLayout];
 }
 
+// Segment widths property
+- (void)setSegmentWidthsInDegrees:(NSArray<NSNumber *> *)segmentWidthsInDegrees {
+	_segmentWidthsInDegrees = segmentWidthsInDegrees;
+	
+	if (self.theSegments.count > 0) {
+		if (segmentWidthsInDegrees.count < self.theSegments.count - 1) {
+			// Handle the error case
+			// You may want to add an error handling mechanism instead of returning
+			return;
+		}
+		
+		double d = 0.0;
+		for (NSInteger i = 0; i < self.theSegments.count; i++) {
+			Segment *segment = self.theSegments[i];
+			segment.startAngleInDegrees = d;
+			
+			if (i == self.theSegments.count - 1 && segmentWidthsInDegrees.count < self.theSegments.count) {
+				segment.endAngleInDegrees = 360.0;
+			} else {
+				d += segmentWidthsInDegrees[i].doubleValue;
+				segment.endAngleInDegrees = d;
+			}
+		}
+		
+		[self updateLayout];
+	}
+}
+
+// Font property
+- (void)setFont:(UIFont *)font {
+	_font = font;
+	for (UILabel *v in self.arcTexts) {
+		v.font = font;
+	}
+}
+
+// Text color property
+- (void)setTextColor:(UIColor *)textColor {
+	_textColor = textColor;
+	for (UILabel *v in self.arcTexts) {
+		v.textColor = textColor;
+	}
+}
+
+// Segment color property
+- (void)setSegmentColor:(UIColor *)segmentColor {
+	_segmentColor = segmentColor;
+	self.segmentLayer.fillColor = segmentColor.CGColor;
+}
+
+// Ring fill color property
+- (void)setRingFillColor:(UIColor *)ringFillColor {
+	_ringFillColor = ringFillColor;
+	self.ringLayer.fillColor = ringFillColor.CGColor;
+}
+
+// Ring stroke color property
+- (void)setRingStrokeColor:(UIColor *)ringStrokeColor {
+	_ringStrokeColor = ringStrokeColor;
+	self.linesLayer.strokeColor = ringStrokeColor.CGColor;
+}
+
+// Property for originDegrees
+- (void)setOriginDegrees:(double)originDegrees {
+	_originDegrees = originDegrees;
+	[self updateLayout];
+}
+
+// Property for ringWidth
+- (void)setRingWidth:(CGFloat)ringWidth {
+	_ringWidth = ringWidth;
+	[self updateLayout];
+}
+
+// Property for cornerRadius
+- (void)setCornerRadius:(CGFloat)cornerRadius {
+	_cornerRadius = cornerRadius;
+	[self updateLayout];
+}
+
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
 	if (self.displayLink && !self.displayLink.isPaused) {
 		return;
@@ -392,8 +475,8 @@
 	for (NSInteger i = 0; i < self.theSegments.count; i++) {
 		Segment *segment = self.theSegments[i];
 		if ([segment.path containsPoint:p]) {
-			[self animateSegmentFrom:self._selectedSegment to:i];
-			self._selectedSegment = i;
+			[self animateSegmentFrom:self.m_selectedSegment to:i];
+			self.m_selectedSegment = i;
 			[self sendActionsForControlEvents:UIControlEventValueChanged];
 			break;
 		}
