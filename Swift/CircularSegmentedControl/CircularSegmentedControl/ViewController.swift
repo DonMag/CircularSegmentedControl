@@ -49,9 +49,18 @@ class ViewController: UIViewController {
 	}
 
 	@objc func valChanged(_ csc: CircularSegmentedControl) {
-		print("Segment Changed:", csc.selectedSegment)
+		print("Segment Changed:", csc.selectedSegmentIndex)
 	}
 
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		guard let t = touches.first else { return }
+		let p = t.location(in: view)
+		if p.x < view.frame.midX {
+			cSeg.setSelectedSegmentIndex(1, animated: true)
+		} else {
+			cSeg.selectedSegmentIndex = 3
+		}
+	}
 }
 
 class SampleSegmentTitles: NSObject {

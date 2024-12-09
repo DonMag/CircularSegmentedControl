@@ -84,18 +84,35 @@ class CircularSegmentedControl: UIControl {
 		}
 	}
 	
+	// Duration of segment animation in seconds
+	public var animationDuration: TimeInterval = 0.3
+	
 	public var originDegrees: Double = 0.0 { didSet { updateLayout() } }
 	
 	public var ringWidth: CGFloat = 40.0 { didSet { updateLayout() } }
 	
 	public var cornerRadius: CGFloat = 6.0 { didSet { updateLayout() } }
 	
-	public var selectedSegment: Int = -1
+	public var selectedSegmentIndex: Int {
+		set {
+			updateSegment(newValue)
+		}
+		get {
+			return _selectedSegment
+		}
+	}
+	public func setSelectedSegmentIndex(_ n: Int, animated: Bool) {
+		if animated, _selectedSegment > -1 {
+			animateSegment(from: _selectedSegment, to: n)
+		} else {
+			updateSegment(n)
+		}
+		_selectedSegment = n
+	}
 	
-	// Duration of animation in seconds
-	public var duration: TimeInterval = 0.3
+	private var _selectedSegment: Int = -1
 	
-	struct MySegment {
+	private struct MySegment {
 		var title: String = "A"
 		var startAngleInDegrees: Double = 0.0
 		var endAngleInDegrees: Double = 0.0
@@ -106,6 +123,7 @@ class CircularSegmentedControl: UIControl {
 	}
 	
 	private var theSegments: [MySegment] = []
+	
 	private let ringLayer: CAShapeLayer = CAShapeLayer()
 	private let linesLayer: CAShapeLayer = CAShapeLayer()
 	private let segmentLayer: CAShapeLayer = CAShapeLayer()
@@ -284,16 +302,15 @@ class CircularSegmentedControl: UIControl {
 		
 		for i in 0..<theSegments.count {
 			if theSegments[i].path.contains(p) {
-				animateSegment(selectedSegment, toSeg: i)
-				selectedSegment = i
+				animateSegment(from: _selectedSegment, to: i)
+				_selectedSegment = i
 				self.sendActions(for: .valueChanged)
 				break
 			}
 		}
 	}
 	
-	func animateSegment(_ fromSeg: Int, toSeg: Int) {
-		
+	func animateSegment(from fromSeg: Int, to toSeg: Int) {
 		sourceDegreeStart = theSegments[fromSeg].startAngleInDegrees
 		sourceDegreeEnd = theSegments[fromSeg].endAngleInDegrees
 		targetDegreeStart = theSegments[toSeg].startAngleInDegrees
@@ -330,11 +347,11 @@ class CircularSegmentedControl: UIControl {
 		let currentTime = CACurrentMediaTime()
 		let elapsedTime = currentTime - startTime
 		
-		let t = elapsedTime / duration
+		let t = elapsedTime / animationDuration
 		if t >= 1.0 {
 			// Animation complete
 			displayLink?.isPaused = true
-			self.drawSegment(startDegree: theSegments[self.selectedSegment].startAngleInDegrees, endDegree: theSegments[self.selectedSegment].endAngleInDegrees)
+			self.drawSegment(startDegree: theSegments[self._selectedSegment].startAngleInDegrees, endDegree: theSegments[self._selectedSegment].endAngleInDegrees)
 			return
 		}
 		
@@ -353,7 +370,7 @@ class CircularSegmentedControl: UIControl {
 	
 	func updateSegment(_ n: Int) {
 		drawSegment(startDegree: theSegments[n].startAngleInDegrees, endDegree: theSegments[n].endAngleInDegrees)
-		selectedSegment = n
+		_selectedSegment = n
 	}
 	
 	/*
