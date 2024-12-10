@@ -135,14 +135,14 @@
 			d1 = [self radiansFromDegrees:segment.startAngleInDegrees];
 			d2 = [self radiansFromDegrees:segment.endAngleInDegrees];
 			
+			d1 += [self radiansFromDegrees:self.originDegrees];
+			d2 += [self radiansFromDegrees:self.originDegrees];
+			
 			[pOuter addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pInner addArcWithCenter:cntr radius:r2 startAngle:d1 endAngle:d2 clockwise:YES];
 			
 			[pLines moveToPoint:pOuter.currentPoint];
 			[pLines addLineToPoint:pInner.currentPoint];
-			
-			d1 += [self radiansFromDegrees:self.originDegrees];
-			d2 += [self radiansFromDegrees:self.originDegrees];
 			
 			UIBezierPath *pSeg = [UIBezierPath bezierPath];
 			[pSeg addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
@@ -183,10 +183,9 @@
 		
 		self.linesLayer.path = pLines.CGPath;
 		
-		self.linesLayer.frame = self.bounds;
+		self.segmentLayer.transform = CATransform3DIdentity;
 		self.segmentLayer.frame = self.bounds;
 		
-		self.linesLayer.transform = CATransform3DMakeRotation([self radiansFromDegrees:self.originDegrees], 0, 0, 1);
 		self.segmentLayer.transform = CATransform3DMakeRotation([self radiansFromDegrees:self.originDegrees], 0, 0, 1);
 		
 		[self updateSegment:0];

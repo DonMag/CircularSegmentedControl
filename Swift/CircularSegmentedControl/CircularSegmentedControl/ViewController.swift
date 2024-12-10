@@ -39,7 +39,7 @@ class ViewController: UIViewController {
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 40.0, 35.0, 45.0, 20.0]
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 40.0, 35.0, 45.0, 20.0]
 		
-		//cSeg.originDegrees = 150.0
+		cSeg.originDegrees = 5.0
 
 		cSeg.font = .systemFont(ofSize: 15.0, weight: .light)
 		cSeg.textColor = .systemBlue

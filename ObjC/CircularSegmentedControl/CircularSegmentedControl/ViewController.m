@@ -36,6 +36,8 @@
 	csc.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightLight];
 	csc.textColor = UIColor.redColor;
 	csc.segmentWidthsInDegrees = @[@80.0, @30.0, @45.0, @60.0, @30.0];
+
+	csc.originDegrees = -45.0;
 	
 }
 

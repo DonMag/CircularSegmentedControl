@@ -232,14 +232,14 @@ class CircularSegmentedControl: UIControl {
 				d1 = theSegments[i].startAngleInDegrees.doubleToRadians()
 				d2 = theSegments[i].endAngleInDegrees.doubleToRadians()
 				
+				d1 += originDegrees.doubleToRadians()
+				d2 += originDegrees.doubleToRadians()
+				
 				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
 				
 				pLines.move(to: pOuter.currentPoint)
 				pLines.addLine(to: pInner.currentPoint)
-				
-				d1 += originDegrees.doubleToRadians()
-				d2 += originDegrees.doubleToRadians()
 				
 				let pSeg = UIBezierPath()
 				pSeg.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
@@ -282,10 +282,9 @@ class CircularSegmentedControl: UIControl {
 			
 			linesLayer.path = pLines.cgPath
 			
-			linesLayer.frame = bounds
+			segmentLayer.transform = CATransform3DIdentity
 			segmentLayer.frame = bounds
 			
-			linesLayer.transform = CATransform3DMakeRotation(originDegrees.doubleToRadians(), 0, 0, 1)
 			segmentLayer.transform = CATransform3DMakeRotation(originDegrees.doubleToRadians(), 0, 0, 1)
 			
 			updateSegment(0)
