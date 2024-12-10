@@ -171,7 +171,7 @@
 		
 		if (self.theSegments.lastObject && floor(self.theSegments.lastObject.endAngleInDegrees) < 360.0) {
 			NSLog(@"add last line");
-			d2 = [self radiansFromDegrees:360.0];
+			d2 = [self radiansFromDegrees:360.0 + self.originDegrees];
 			[pOuter addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pInner addArcWithCenter:cntr radius:r2 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pLines moveToPoint:pOuter.currentPoint];
@@ -183,11 +183,6 @@
 		
 		self.linesLayer.path = pLines.CGPath;
 		
-		self.segmentLayer.transform = CATransform3DIdentity;
-		self.segmentLayer.frame = self.bounds;
-		
-		self.segmentLayer.transform = CATransform3DMakeRotation([self radiansFromDegrees:self.originDegrees], 0, 0, 1);
-		
 		[self updateSegment:0];
 	}
 }
@@ -195,9 +190,11 @@
 - (double)radiansFromDegrees:(double)degrees {
 	return degrees * M_PI / 180.0;
 }
-// Helper method to convert degrees to radians
 - (double)doubleToRadians:(double)degrees {
 	return degrees * M_PI / 180.0;
+}
+- (double)midAngleInDegrees:(double)a1 a2:(double)a2 {
+	return (a1 + a2) * 0.5;
 }
 
 - (void)drawSegmentWithStartDegree:(double)startDegree endDegree:(double)endDegree {
@@ -278,13 +275,13 @@
 }
 
 - (void)animateSegmentFrom:(NSInteger)fromSeg to:(NSInteger)toSeg {
-	self.sourceDegreeStart = self.theSegments[fromSeg].startAngleInDegrees;
-	self.sourceDegreeEnd = self.theSegments[fromSeg].endAngleInDegrees;
-	self.targetDegreeStart = self.theSegments[toSeg].startAngleInDegrees;
-	self.targetDegreeEnd = self.theSegments[toSeg].endAngleInDegrees;
+	self.sourceDegreeStart = self.theSegments[fromSeg].startAngleInDegrees + self.originDegrees;
+	self.sourceDegreeEnd = self.theSegments[fromSeg].endAngleInDegrees + self.originDegrees;
+	self.targetDegreeStart = self.theSegments[toSeg].startAngleInDegrees + self.originDegrees;
+	self.targetDegreeEnd = self.theSegments[toSeg].endAngleInDegrees + self.originDegrees;
 	
-	double g1 = self.theSegments[fromSeg].midAngleInDegrees;
-	double g2 = self.theSegments[toSeg].midAngleInDegrees;
+	double g1 = [self midAngleInDegrees:self.sourceDegreeStart a2:self.sourceDegreeEnd];
+	double g2 = [self midAngleInDegrees:self.targetDegreeStart a2:self.targetDegreeEnd];
 	double absD = fabs(g2 - g1);
 	
 	if (absD > 180.0) {
@@ -318,8 +315,8 @@
 	if (t >= 1.0) {
 		// Animation complete
 		self.displayLink.paused = YES;
-		[self drawSegmentWithStartDegree:self.theSegments[self.m_selectedSegment].startAngleInDegrees
-							   endDegree:self.theSegments[self.m_selectedSegment].endAngleInDegrees];
+		[self drawSegmentWithStartDegree:self.theSegments[self.m_selectedSegment].startAngleInDegrees + self.originDegrees
+							   endDegree:self.theSegments[self.m_selectedSegment].endAngleInDegrees + self.originDegrees];
 		return;
 	}
 	
@@ -348,7 +345,7 @@
 }
 
 - (void)updateSegment:(NSInteger)index {
-	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees endDegree:_theSegments[index].endAngleInDegrees];
+	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees + self.originDegrees endDegree:_theSegments[index].endAngleInDegrees + self.originDegrees];
 	self.m_selectedSegment = index;
 }
 
