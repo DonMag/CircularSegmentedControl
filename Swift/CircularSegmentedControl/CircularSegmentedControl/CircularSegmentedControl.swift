@@ -8,7 +8,7 @@
 import UIKit
 
 class CircularSegmentedControl: UIControl {
-	
+
 	public var font: UIFont = .systemFont(ofSize: 16) {
 		didSet {
 			for v in arcTexts {
@@ -98,27 +98,24 @@ class CircularSegmentedControl: UIControl {
 			updateSegment(newValue)
 		}
 		get {
-			return _selectedSegment
+			return m_selectedSegment
 		}
 	}
 	public func setSelectedSegmentIndex(_ n: Int, animated: Bool) {
-		if animated, _selectedSegment > -1 {
-			animateSegment(from: _selectedSegment, to: n)
+		if animated, m_selectedSegment > -1 {
+			animateSegment(from: m_selectedSegment, to: n)
 		} else {
 			updateSegment(n)
 		}
-		_selectedSegment = n
+		m_selectedSegment = n
 	}
 	
-	private var _selectedSegment: Int = -1
+	private var m_selectedSegment: Int = -1
 	
 	private struct MySegment {
 		var title: String = "A"
 		var startAngleInDegrees: Double = 0.0
 		var endAngleInDegrees: Double = 0.0
-		var midAngleInDegrees: Double {
-			return (startAngleInDegrees + endAngleInDegrees) * 0.5
-		}
 		var path: UIBezierPath = UIBezierPath()
 	}
 	
@@ -209,19 +206,22 @@ class CircularSegmentedControl: UIControl {
 		
 		let cntr: CGPoint = .init(x: bounds.midX, y: bounds.midY)
 		
+		// create the "ring background" path
 		let p1 = UIBezierPath(ovalIn: bounds)
 		let p2 = UIBezierPath(ovalIn: bounds.insetBy(dx: ringWidth, dy: ringWidth))
 		p1.append(p2)
 		p1.usesEvenOddFillRule = true
 		ringLayer.path = p1.cgPath
 		ringLayer.fillRule = .evenOdd
-		
+
+		// clear the labels
 		for v in arcTexts {
 			v.removeFromSuperview()
 		}
 		arcTexts = []
 		
 		if !theSegments.isEmpty {
+			// pOuter and pInner paths are used to get the points for the separator lines
 			let pOuter = UIBezierPath()
 			let pInner = UIBezierPath()
 			let pLines = UIBezierPath()
@@ -229,24 +229,27 @@ class CircularSegmentedControl: UIControl {
 			var d1: Double = -1.0
 			var d2: Double = -1.0
 			for i in 0..<theSegments.count {
-				d1 = theSegments[i].startAngleInDegrees.doubleToRadians()
-				d2 = theSegments[i].endAngleInDegrees.doubleToRadians()
-				
-				d1 += originDegrees.doubleToRadians()
-				d2 += originDegrees.doubleToRadians()
+				d1 = degreesToRadians(theSegments[i].startAngleInDegrees)
+				d2 = degreesToRadians(theSegments[i].endAngleInDegrees)
+
+				d1 += degreesToRadians(originDegrees)
+				d2 += degreesToRadians(originDegrees)
 				
 				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
 				
+				// add separator line
 				pLines.move(to: pOuter.currentPoint)
 				pLines.addLine(to: pInner.currentPoint)
 				
+				// create path used to detect touch
 				let pSeg = UIBezierPath()
 				pSeg.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pSeg.addArc(withCenter: cntr, radius: r2, startAngle: d2, endAngle: d1, clockwise: false)
 				pSeg.close()
 				theSegments[i].path = pSeg
 				
+				// create arc-following text view
 				let v = ArcTextView()
 				v.translatesAutoresizingMaskIntoConstraints = false
 				addSubview(v)
@@ -258,19 +261,18 @@ class CircularSegmentedControl: UIControl {
 					v.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -0.0),
 				])
 				
+				// configure the arc-text
 				v.text = theSegments[i].title
-				v.startAngle = ((theSegments[i].midAngleInDegrees) + originDegrees).doubleToRadians()
+				v.startAngle = degreesToRadians(midAngle(a1: theSegments[i].startAngleInDegrees, a2: theSegments[i].endAngleInDegrees) + originDegrees)
 				v.radius = r1 - ringWidth / 2.0
 				v.textColor = textColor
 				v.font = font
 				arcTexts.append(v)
-				
 			}
 			
 			// if segments don't fill the circle, add a separator line at 360.0 degrees
 			if let seg = theSegments.last, floor(seg.endAngleInDegrees) < 360.0 {
-				print("add last line")
-				d2 = (360.0 + originDegrees).doubleToRadians()
+				d2 = degreesToRadians(360.0 + originDegrees)
 				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
 				pLines.move(to: pOuter.currentPoint)
@@ -296,79 +298,12 @@ class CircularSegmentedControl: UIControl {
 		
 		for i in 0..<theSegments.count {
 			if theSegments[i].path.contains(p) {
-				animateSegment(from: _selectedSegment, to: i)
-				_selectedSegment = i
+				animateSegment(from: m_selectedSegment, to: i)
+				m_selectedSegment = i
 				self.sendActions(for: .valueChanged)
 				break
 			}
 		}
-	}
-	
-	func midAngleInDegrees(a1: Double, a2: Double) -> Double {
-		return (a1 + a2) * 0.5
-	}
-	
-	func animateSegment(from fromSeg: Int, to toSeg: Int) {
-		sourceDegreeStart = theSegments[fromSeg].startAngleInDegrees + originDegrees
-		sourceDegreeEnd = theSegments[fromSeg].endAngleInDegrees + originDegrees
-		targetDegreeStart = theSegments[toSeg].startAngleInDegrees + originDegrees
-		targetDegreeEnd = theSegments[toSeg].endAngleInDegrees + originDegrees
-		
-		let g1 = midAngleInDegrees(a1: sourceDegreeStart, a2: sourceDegreeEnd) //theSegments[fromSeg].midAngleInDegrees
-		let g2 = midAngleInDegrees(a1: targetDegreeStart, a2: targetDegreeEnd) //theSegments[toSeg].midAngleInDegrees
-		let absD = abs(g2 - g1)
-		
-		if absD > 180.0 {
-			if g1 < g2 {
-				targetDegreeStart -= 360.0
-				targetDegreeEnd -= 360.0
-			} else {
-				targetDegreeStart += 360.0
-				targetDegreeEnd += 360.0
-			}
-		}
-		
-		startDegreeDist = targetDegreeStart - sourceDegreeStart
-		endDegreeDist = targetDegreeEnd - sourceDegreeEnd
-		
-		startAnimation()
-	}
-	
-	@objc func startAnimation() {
-		// Reset start time
-		startTime = CACurrentMediaTime()
-		// Unpause the display link to start animation
-		displayLink?.isPaused = false
-	}
-	
-	@objc func updateAnimation() {
-		let currentTime = CACurrentMediaTime()
-		let elapsedTime = currentTime - startTime
-		
-		let t = elapsedTime / animationDuration
-		if t >= 1.0 {
-			// Animation complete
-			displayLink?.isPaused = true
-			self.drawSegment(startDegree: theSegments[self._selectedSegment].startAngleInDegrees + originDegrees, endDegree: theSegments[self._selectedSegment].endAngleInDegrees + originDegrees)
-			return
-		}
-		
-		// Apply ease-in-ease-out algorithm
-		let easedT = easeInOut(CGFloat(t))
-		
-		let newSt = self.sourceDegreeStart + self.startDegreeDist * easedT
-		let newEnd = self.sourceDegreeEnd + self.endDegreeDist * easedT
-		self.drawSegment(startDegree: newSt, endDegree: newEnd)
-	}
-	func easeInOut(_ t: CGFloat) -> CGFloat {
-		return t < 0.5
-		? 2 * t * t
-		: -1 + (4 - 2 * t) * t
-	}
-	
-	func updateSegment(_ n: Int) {
-		drawSegment(startDegree: theSegments[n].startAngleInDegrees + originDegrees, endDegree: theSegments[n].endAngleInDegrees + originDegrees)
-		_selectedSegment = n
 	}
 	
 	/*
@@ -376,8 +311,8 @@ class CircularSegmentedControl: UIControl {
 	 */
 	func drawSegment(startDegree: Double, endDegree: Double) {
 		
-		let startAngle = (startDegree + 1.0).doubleToRadians()
-		let endAngle = (endDegree - 1.0).doubleToRadians()
+		let startAngle = degreesToRadians(startDegree + 1.0)
+		let endAngle = degreesToRadians(endDegree - 1.0)
 		
 		let clockwise: Bool = true
 		let r1: Double = bounds.width * 0.5 - 3.0
@@ -424,97 +359,78 @@ class CircularSegmentedControl: UIControl {
 		
 	}
 	
-	class ArcTextView: UIView {
-		var text: String = "Text Along Arc"
-		var startAngle: CGFloat = -CGFloat.pi / 2 // Top of the circle
-		var radius: CGFloat = 100.0 { didSet { setNeedsDisplay() } }
+	func animateSegment(from fromSeg: Int, to toSeg: Int) {
+		sourceDegreeStart = theSegments[fromSeg].startAngleInDegrees + originDegrees
+		sourceDegreeEnd = theSegments[fromSeg].endAngleInDegrees + originDegrees
+		targetDegreeStart = theSegments[toSeg].startAngleInDegrees + originDegrees
+		targetDegreeEnd = theSegments[toSeg].endAngleInDegrees + originDegrees
 		
-		var font: UIFont = .systemFont(ofSize: 16) { didSet { setNeedsDisplay() } }
-		var textColor: UIColor = .black { didSet { setNeedsDisplay() } }
+		let g1 = midAngle(a1: sourceDegreeStart, a2: sourceDegreeEnd)
+		let g2 = midAngle(a1: targetDegreeStart, a2: targetDegreeEnd)
+		let absD = abs(g2 - g1)
 		
-		override init(frame: CGRect) {
-			super.init(frame: frame)
-			commonInit()
-		}
-		required init?(coder: NSCoder) {
-			super.init(coder: coder)
-			commonInit()
-		}
-		private func commonInit() {
-			backgroundColor = .clear
-		}
-		override func draw(_ rect: CGRect) {
-			super.draw(rect)
-			
-			guard let context = UIGraphicsGetCurrentContext() else { return }
-			
-			// Center of the arc
-			let center = CGPoint(x: rect.midX, y: rect.midY)
-			
-			// Attributes for the text
-			let attributes: [NSAttributedString.Key: Any] = [
-				.font: font,
-				.foregroundColor: textColor,
-			]
-			// Total arc angle needed to draw the text
-			var totalArcLength: CGFloat = 0
-			for char in text {
-				let charSize = (String(char) as NSString).size(withAttributes: attributes)
-				totalArcLength += charSize.width
-			}
-			
-			let totalArcAngle = totalArcLength / radius
-			
-			// Adjust starting angle to center the text if necessary
-			var currentAngle = startAngle - totalArcAngle / 2
-			
-			// Draw each character
-			for char in text {
-				let charString = String(char)
-				let charSize = (charString as NSString).size(withAttributes: attributes)
-				
-				// Calculate the position for the character along the arc
-				let halfCharAngle = (charSize.width / radius) / 2
-				let charAngle = currentAngle + halfCharAngle
-				
-				// Calculate the character's position
-				let x = center.x + radius * cos(charAngle)
-				let y = center.y + radius * sin(charAngle)
-				
-				// Save the context's state
-				context.saveGState()
-				
-				// Move to the character's position and rotate the context
-				context.translateBy(x: x, y: y)
-				context.rotate(by: charAngle + .pi / 2) // Rotate to align with the arc
-				
-				// Draw the character
-				charString.draw(at: CGPoint(x: -charSize.width / 2, y: -charSize.height / 2), withAttributes: attributes)
-				
-				// Restore the context's state
-				context.restoreGState()
-				
-				// Update the current angle
-				currentAngle += charSize.width / radius
+		// we want to animate the segment using the shorter distance/direction around the ring
+		if absD > 180.0 {
+			if g1 < g2 {
+				targetDegreeStart -= 360.0
+				targetDegreeEnd -= 360.0
+			} else {
+				targetDegreeStart += 360.0
+				targetDegreeEnd += 360.0
 			}
 		}
+		
+		startDegreeDist = targetDegreeStart - sourceDegreeStart
+		endDegreeDist = targetDegreeEnd - sourceDegreeEnd
+		
+		startAnimation()
 	}
 	
+	@objc func startAnimation() {
+		// Reset start time
+		startTime = CACurrentMediaTime()
+		// Unpause the display link to start animation
+		displayLink?.isPaused = false
+	}
+	
+	@objc func updateAnimation() {
+		let currentTime = CACurrentMediaTime()
+		let elapsedTime = currentTime - startTime
+		
+		let t = elapsedTime / animationDuration
+		if t >= 1.0 {
+			// Animation complete
+			displayLink?.isPaused = true
+			self.drawSegment(startDegree: theSegments[self.m_selectedSegment].startAngleInDegrees + originDegrees, endDegree: theSegments[self.m_selectedSegment].endAngleInDegrees + originDegrees)
+			return
+		}
+		
+		// Apply ease-in-ease-out algorithm
+		let easedT = easeInOut(CGFloat(t))
+		
+		let newSt = self.sourceDegreeStart + self.startDegreeDist * easedT
+		let newEnd = self.sourceDegreeEnd + self.endDegreeDist * easedT
+		self.drawSegment(startDegree: newSt, endDegree: newEnd)
+	}
+
+	func updateSegment(_ n: Int) {
+		drawSegment(startDegree: theSegments[n].startAngleInDegrees + originDegrees, endDegree: theSegments[n].endAngleInDegrees + originDegrees)
+		m_selectedSegment = n
+	}
+	
+	func easeInOut(_ t: CGFloat) -> CGFloat {
+		return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+	}
+	
+	func radiansToDegrees(_ radians: Double) -> Double {
+		return radians / (.pi / 180.0)
+	}
+	func degreesToRadians(_ degrees: Double) -> Double {
+		return degrees * .pi / 180.0
+	}
+	func midAngle(a1: Double, a2: Double) -> Double {
+		return (a1 + a2) * 0.5
+	}
+		
 }
 
-extension CGFloat {
-	func floatToRadians() -> CGFloat {
-		return self * CGFloat(Double.pi) / 180.0
-	}
-	func floatToDegrees() -> CGFloat {
-		return self / (CGFloat(Double.pi) / 180.0)
-	}
-}
-extension Double {
-	func doubleToRadians() -> Double {
-		return self * .pi / 180.0
-	}
-	func doubleToDegrees() -> Double {
-		return self / (.pi / 180.0)
-	}
-}

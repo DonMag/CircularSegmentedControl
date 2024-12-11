@@ -16,9 +16,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) double endAngleInDegrees; // End angle in degrees
 @property (nonatomic, strong) UIBezierPath *path; // Path for the segment
 
-// Computed property equivalent for midAngleInDegrees
-- (double)midAngleInDegrees;
-
 @end
 
 NS_ASSUME_NONNULL_END

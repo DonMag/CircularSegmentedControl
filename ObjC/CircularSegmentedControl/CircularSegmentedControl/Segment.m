@@ -20,8 +20,4 @@
 	return self;
 }
 
-- (double)midAngleInDegrees {
-	return (self.startAngleInDegrees + self.endAngleInDegrees) * 0.5;
-}
-
 @end

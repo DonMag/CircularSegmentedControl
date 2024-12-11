@@ -14,6 +14,8 @@
 		FCB57F332D039509007C908E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCB57F322D039509007C908E /* Assets.xcassets */; };
 		FCB57F362D039509007C908E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB57F342D039509007C908E /* LaunchScreen.storyboard */; };
 		FCB57F3E2D03954B007C908E /* CircularSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F3D2D03954B007C908E /* CircularSegmentedControl.swift */; };
+		FCB57F6E2D09C4E7007C908E /* ArcTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F6D2D09C4E7007C908E /* ArcTextView.swift */; };
+		FCB57F702D09C692007C908E /* Segment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F6F2D09C692007C908E /* Segment.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		FCB57F352D039509007C908E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FCB57F372D039509007C908E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FCB57F3D2D03954B007C908E /* CircularSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularSegmentedControl.swift; sourceTree = "<group>"; };
+		FCB57F6D2D09C4E7007C908E /* ArcTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcTextView.swift; sourceTree = "<group>"; };
+		FCB57F6F2D09C692007C908E /* Segment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Segment.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,8 @@
 				FCB57F2B2D039507007C908E /* SceneDelegate.swift */,
 				FCB57F2D2D039507007C908E /* ViewController.swift */,
 				FCB57F3D2D03954B007C908E /* CircularSegmentedControl.swift */,
+				FCB57F6F2D09C692007C908E /* Segment.swift */,
+				FCB57F6D2D09C4E7007C908E /* ArcTextView.swift */,
 				FCB57F2F2D039507007C908E /* Main.storyboard */,
 				FCB57F322D039509007C908E /* Assets.xcassets */,
 				FCB57F342D039509007C908E /* LaunchScreen.storyboard */,
@@ -142,7 +148,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCB57F2E2D039507007C908E /* ViewController.swift in Sources */,
+				FCB57F702D09C692007C908E /* Segment.swift in Sources */,
 				FCB57F2A2D039507007C908E /* AppDelegate.swift in Sources */,
+				FCB57F6E2D09C4E7007C908E /* ArcTextView.swift in Sources */,
 				FCB57F2C2D039507007C908E /* SceneDelegate.swift in Sources */,
 				FCB57F3E2D03954B007C908E /* CircularSegmentedControl.swift in Sources */,
 			);

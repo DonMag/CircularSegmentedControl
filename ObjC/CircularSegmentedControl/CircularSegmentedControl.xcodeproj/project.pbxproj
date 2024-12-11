@@ -16,6 +16,7 @@
 		FCB57F5E2D07258C007C908E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F5D2D07258C007C908E /* main.m */; };
 		FCB57F662D0725E8007C908E /* CircularSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F652D0725E8007C908E /* CircularSegmentedControl.m */; };
 		FCB57F692D072BFC007C908E /* Segment.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F682D072BFC007C908E /* Segment.m */; };
+		FCB57F6C2D09C47A007C908E /* ArcTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F6B2D09C47A007C908E /* ArcTextView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,8 @@
 		FCB57F652D0725E8007C908E /* CircularSegmentedControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CircularSegmentedControl.m; sourceTree = "<group>"; };
 		FCB57F672D072BFC007C908E /* Segment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Segment.h; sourceTree = "<group>"; };
 		FCB57F682D072BFC007C908E /* Segment.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Segment.m; sourceTree = "<group>"; };
+		FCB57F6A2D09C47A007C908E /* ArcTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArcTextView.h; sourceTree = "<group>"; };
+		FCB57F6B2D09C47A007C908E /* ArcTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArcTextView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +78,8 @@
 				FCB57F522D07258B007C908E /* ViewController.m */,
 				FCB57F642D0725E8007C908E /* CircularSegmentedControl.h */,
 				FCB57F652D0725E8007C908E /* CircularSegmentedControl.m */,
+				FCB57F6A2D09C47A007C908E /* ArcTextView.h */,
+				FCB57F6B2D09C47A007C908E /* ArcTextView.m */,
 				FCB57F672D072BFC007C908E /* Segment.h */,
 				FCB57F682D072BFC007C908E /* Segment.m */,
 				FCB57F542D07258B007C908E /* Main.storyboard */,
@@ -161,6 +166,7 @@
 				FCB57F5E2D07258C007C908E /* main.m in Sources */,
 				FCB57F502D07258B007C908E /* SceneDelegate.m in Sources */,
 				FCB57F662D0725E8007C908E /* CircularSegmentedControl.m in Sources */,
+				FCB57F6C2D09C47A007C908E /* ArcTextView.m in Sources */,
 				FCB57F692D072BFC007C908E /* Segment.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

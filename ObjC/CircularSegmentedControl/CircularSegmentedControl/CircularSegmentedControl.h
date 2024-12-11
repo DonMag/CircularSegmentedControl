@@ -26,14 +26,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface ArcTextView : UIView
-
-@property (nonatomic, strong) NSString *text;
-@property (nonatomic, assign) CGFloat startAngle;
-@property (nonatomic, assign) CGFloat radius;
-@property (nonatomic, strong) UIFont *font;
-@property (nonatomic, strong) UIColor *textColor;
-
-@end
-
 NS_ASSUME_NONNULL_END

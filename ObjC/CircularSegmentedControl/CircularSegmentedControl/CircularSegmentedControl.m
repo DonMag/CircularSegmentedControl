@@ -7,6 +7,7 @@
 
 #import "CircularSegmentedControl.h"
 #import "Segment.h"
+#import "ArcTextView.h"
 
 @interface CircularSegmentedControl ()
 
@@ -110,6 +111,7 @@
 	
 	CGPoint cntr = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
 	
+	// create the "ring background" path
 	UIBezierPath *p1 = [UIBezierPath bezierPathWithOvalInRect:self.bounds];
 	UIBezierPath *p2 = [UIBezierPath bezierPathWithOvalInRect:CGRectInset(self.bounds, self.ringWidth, self.ringWidth)];
 	[p1 appendPath:p2];
@@ -117,12 +119,14 @@
 	self.ringLayer.path = p1.CGPath;
 	self.ringLayer.fillRule = kCAFillRuleEvenOdd;
 	
+	// clear the labels
 	for (UIView *v in self.arcTexts) {
 		[v removeFromSuperview];
 	}
 	self.arcTexts = [NSMutableArray array];
 	
 	if (self.theSegments.count > 0) {
+		// pOuter and pInner paths are used to get the points for the separator lines
 		UIBezierPath *pOuter = [UIBezierPath bezierPath];
 		UIBezierPath *pInner = [UIBezierPath bezierPath];
 		UIBezierPath *pLines = [UIBezierPath bezierPath];
@@ -132,24 +136,27 @@
 		
 		for (int i = 0; i < self.theSegments.count; i++) {
 			Segment *segment = self.theSegments[i];
-			d1 = [self radiansFromDegrees:segment.startAngleInDegrees];
-			d2 = [self radiansFromDegrees:segment.endAngleInDegrees];
+			d1 = [self degreesToRadians:segment.startAngleInDegrees];
+			d2 = [self degreesToRadians:segment.endAngleInDegrees];
 			
-			d1 += [self radiansFromDegrees:self.originDegrees];
-			d2 += [self radiansFromDegrees:self.originDegrees];
+			d1 += [self degreesToRadians:self.originDegrees];
+			d2 += [self degreesToRadians:self.originDegrees];
 			
 			[pOuter addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pInner addArcWithCenter:cntr radius:r2 startAngle:d1 endAngle:d2 clockwise:YES];
 			
+			// add separator line
 			[pLines moveToPoint:pOuter.currentPoint];
 			[pLines addLineToPoint:pInner.currentPoint];
 			
+			// create path used to detect touch
 			UIBezierPath *pSeg = [UIBezierPath bezierPath];
 			[pSeg addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pSeg addArcWithCenter:cntr radius:r2 startAngle:d2 endAngle:d1 clockwise:NO];
 			[pSeg closePath];
 			segment.path = pSeg;
 			
+			// create arc-following text view
 			ArcTextView *v = [[ArcTextView alloc] init];
 			v.translatesAutoresizingMaskIntoConstraints = NO;
 			[self addSubview:v];
@@ -161,17 +168,19 @@
 				[v.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:0.0]
 			]];
 			
+			// configure the arc-text
 			v.text = segment.title;
-			v.startAngle = [self radiansFromDegrees:(segment.midAngleInDegrees + self.originDegrees)];
+			v.startAngle = [self degreesToRadians:[self midAngle:segment.startAngleInDegrees a2:segment.endAngleInDegrees] + self.originDegrees];
 			v.radius = r1 - self.ringWidth / 2.0;
 			v.textColor = self.textColor;
 			v.font = self.font;
 			[self.arcTexts addObject:v];
 		}
-		
+
+		// if explicit segment widths are used, and
+		//	segments don't fill the circle, add a separator line at 360.0 degrees
 		if (self.theSegments.lastObject && floor(self.theSegments.lastObject.endAngleInDegrees) < 360.0) {
-			NSLog(@"add last line");
-			d2 = [self radiansFromDegrees:360.0 + self.originDegrees];
+			d2 = [self degreesToRadians:360.0 + self.originDegrees];
 			[pOuter addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pInner addArcWithCenter:cntr radius:r2 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pLines moveToPoint:pOuter.currentPoint];
@@ -187,20 +196,13 @@
 	}
 }
 
-- (double)radiansFromDegrees:(double)degrees {
-	return degrees * M_PI / 180.0;
-}
-- (double)doubleToRadians:(double)degrees {
-	return degrees * M_PI / 180.0;
-}
-- (double)midAngleInDegrees:(double)a1 a2:(double)a2 {
-	return (a1 + a2) * 0.5;
-}
-
+/*
+ Arc with rounded corners - based on https://stackoverflow.com/a/61977919/6257435
+ */
 - (void)drawSegmentWithStartDegree:(double)startDegree endDegree:(double)endDegree {
-	// Convert degrees to radians
-	double startAngle = [self doubleToRadians:startDegree + 1.0];
-	double endAngle = [self doubleToRadians:endDegree - 1.0];
+
+	double startAngle = [self degreesToRadians:startDegree + 1.0];
+	double endAngle = [self degreesToRadians:endDegree - 1.0];
 	
 	BOOL clockwise = YES;
 	double r1 = self.bounds.size.width * 0.5 - 3.0;
@@ -272,6 +274,7 @@
 	[path closePath];
 	
 	self.segmentLayer.path = path.CGPath;
+	
 }
 
 - (void)animateSegmentFrom:(NSInteger)fromSeg to:(NSInteger)toSeg {
@@ -280,10 +283,11 @@
 	self.targetDegreeStart = self.theSegments[toSeg].startAngleInDegrees + self.originDegrees;
 	self.targetDegreeEnd = self.theSegments[toSeg].endAngleInDegrees + self.originDegrees;
 	
-	double g1 = [self midAngleInDegrees:self.sourceDegreeStart a2:self.sourceDegreeEnd];
-	double g2 = [self midAngleInDegrees:self.targetDegreeStart a2:self.targetDegreeEnd];
+	double g1 = [self midAngle:self.sourceDegreeStart a2:self.sourceDegreeEnd];
+	double g2 = [self midAngle:self.targetDegreeStart a2:self.targetDegreeEnd];
 	double absD = fabs(g2 - g1);
 	
+	// we want to animate the segment using the shorter distance/direction around the ring
 	if (absD > 180.0) {
 		if (g1 < g2) {
 			self.targetDegreeStart -= 360.0;
@@ -328,8 +332,23 @@
 	[self drawSegmentWithStartDegree:newSt endDegree:newEnd];
 }
 
+- (void)updateSegment:(NSInteger)index {
+	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees + self.originDegrees endDegree:_theSegments[index].endAngleInDegrees + self.originDegrees];
+	self.m_selectedSegment = index;
+}
+
 - (CGFloat)easeInOut:(CGFloat)t {
 	return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+- (double)radiansToDegrees:(double)radians {
+	return radians / (M_PI / 180.0);
+}
+- (double)degreesToRadians:(double)degrees {
+	return degrees * M_PI / 180.0;
+}
+- (double)midAngle:(double)a1 a2:(double)a2 {
+	return (a1 + a2) * 0.5;
 }
 
 - (void)setSelectedSegmentIndex:(NSInteger)index {
@@ -341,11 +360,6 @@
 	} else {
 		[self updateSegment:index];
 	}
-	self.m_selectedSegment = index;
-}
-
-- (void)updateSegment:(NSInteger)index {
-	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees + self.originDegrees endDegree:_theSegments[index].endAngleInDegrees + self.originDegrees];
 	self.m_selectedSegment = index;
 }
 
@@ -481,102 +495,3 @@
 
 @end
 
-@implementation ArcTextView
-
-- (instancetype)initWithFrame:(CGRect)frame {
-	self = [super initWithFrame:frame];
-	if (self) {
-		[self commonInit];
-	}
-	return self;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)coder {
-	self = [super initWithCoder:coder];
-	if (self) {
-		[self commonInit];
-	}
-	return self;
-}
-
-- (void)commonInit {
-	self.backgroundColor = [UIColor clearColor];
-	self.text = @"Text Along Arc";
-	self.startAngle = -M_PI_2; // Top of the circle
-	self.radius = 100.0;
-	self.font = [UIFont systemFontOfSize:16];
-	self.textColor = [UIColor blackColor];
-}
-
-- (void)setRadius:(CGFloat)radius {
-	_radius = radius;
-	[self setNeedsDisplay];
-}
-
-- (void)setFont:(UIFont *)font {
-	_font = font;
-	[self setNeedsDisplay];
-}
-
-- (void)setTextColor:(UIColor *)textColor {
-	_textColor = textColor;
-	[self setNeedsDisplay];
-}
-
-- (void)drawRect:(CGRect)rect {
-	[super drawRect:rect];
-	
-	CGContextRef context = UIGraphicsGetCurrentContext();
-	if (!context) return;
-	
-	// Center of the arc
-	CGPoint center = CGPointMake(CGRectGetMidX(rect), CGRectGetMidY(rect));
-	
-	// Attributes for the text
-	NSDictionary *attributes = @{
-		NSFontAttributeName: self.font,
-		NSForegroundColorAttributeName: self.textColor
-	};
-	
-	// Total arc length
-	CGFloat totalArcLength = 0;
-	for (NSUInteger i = 0; i < self.text.length; i++) {
-		NSString *charString = [self.text substringWithRange:NSMakeRange(i, 1)];
-		CGSize charSize = [charString sizeWithAttributes:attributes];
-		totalArcLength += charSize.width;
-	}
-	
-	CGFloat totalArcAngle = totalArcLength / self.radius;
-	
-	// Adjust starting angle to center the text
-	CGFloat currentAngle = self.startAngle - totalArcAngle / 2;
-	
-	// Draw each character
-	for (NSUInteger i = 0; i < self.text.length; i++) {
-		NSString *charString = [self.text substringWithRange:NSMakeRange(i, 1)];
-		CGSize charSize = [charString sizeWithAttributes:attributes];
-		
-		CGFloat halfCharAngle = (charSize.width / self.radius) / 2;
-		CGFloat charAngle = currentAngle + halfCharAngle;
-		
-		// Calculate character position
-		CGFloat x = center.x + self.radius * cos(charAngle);
-		CGFloat y = center.y + self.radius * sin(charAngle);
-		
-		CGContextSaveGState(context);
-		
-		// Move to position and rotate context
-		CGContextTranslateCTM(context, x, y);
-		CGContextRotateCTM(context, charAngle + M_PI_2);
-		
-		// Draw the character
-		[charString drawAtPoint:CGPointMake(-charSize.width / 2, -charSize.height / 2) withAttributes:attributes];
-		
-		CGContextRestoreGState(context);
-		
-		// Update current angle
-		currentAngle += charSize.width / self.radius;
-	}
-}
-
-@end
