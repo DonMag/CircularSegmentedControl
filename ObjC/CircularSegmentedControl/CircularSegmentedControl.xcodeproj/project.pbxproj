@@ -17,6 +17,7 @@
 		FCB57F662D0725E8007C908E /* CircularSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F652D0725E8007C908E /* CircularSegmentedControl.m */; };
 		FCB57F692D072BFC007C908E /* Segment.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F682D072BFC007C908E /* Segment.m */; };
 		FCB57F6C2D09C47A007C908E /* ArcTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F6B2D09C47A007C908E /* ArcTextView.m */; };
+		FCB57F732D0A27AA007C908E /* SampleSegmentTitles.m in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F722D0A27AA007C908E /* SampleSegmentTitles.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,8 @@
 		FCB57F682D072BFC007C908E /* Segment.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Segment.m; sourceTree = "<group>"; };
 		FCB57F6A2D09C47A007C908E /* ArcTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ArcTextView.h; sourceTree = "<group>"; };
 		FCB57F6B2D09C47A007C908E /* ArcTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ArcTextView.m; sourceTree = "<group>"; };
+		FCB57F712D0A27AA007C908E /* SampleSegmentTitles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SampleSegmentTitles.h; sourceTree = "<group>"; };
+		FCB57F722D0A27AA007C908E /* SampleSegmentTitles.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SampleSegmentTitles.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +85,8 @@
 				FCB57F6B2D09C47A007C908E /* ArcTextView.m */,
 				FCB57F672D072BFC007C908E /* Segment.h */,
 				FCB57F682D072BFC007C908E /* Segment.m */,
+				FCB57F712D0A27AA007C908E /* SampleSegmentTitles.h */,
+				FCB57F722D0A27AA007C908E /* SampleSegmentTitles.m */,
 				FCB57F542D07258B007C908E /* Main.storyboard */,
 				FCB57F572D07258C007C908E /* Assets.xcassets */,
 				FCB57F592D07258C007C908E /* LaunchScreen.storyboard */,
@@ -163,6 +168,7 @@
 			files = (
 				FCB57F532D07258B007C908E /* ViewController.m in Sources */,
 				FCB57F4D2D07258B007C908E /* AppDelegate.m in Sources */,
+				FCB57F732D0A27AA007C908E /* SampleSegmentTitles.m in Sources */,
 				FCB57F5E2D07258C007C908E /* main.m in Sources */,
 				FCB57F502D07258B007C908E /* SceneDelegate.m in Sources */,
 				FCB57F662D0725E8007C908E /* CircularSegmentedControl.m in Sources */,

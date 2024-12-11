@@ -8,7 +8,7 @@
 import UIKit
 
 class CircularSegmentedControl: UIControl {
-
+	
 	public var font: UIFont = .systemFont(ofSize: 16) {
 		didSet {
 			for v in arcTexts {
@@ -28,6 +28,11 @@ class CircularSegmentedControl: UIControl {
 			segmentLayer.fillColor = segmentColor.cgColor
 		}
 	}
+	public var segmentShadowOpacity: Float = 0.2 {
+		didSet {
+			segmentLayer.shadowOpacity = segmentShadowOpacity
+		}
+	}
 	public var ringFillColor: UIColor = UIColor(white: 0.95, alpha: 1.0) {
 		didSet {
 			ringLayer.fillColor = ringFillColor.cgColor
@@ -44,7 +49,7 @@ class CircularSegmentedControl: UIControl {
 			let segSize = 360.0 / Double(titles.count)
 			var d: Double = 0.0
 			for (i, t) in titles.enumerated() {
-				var seg = MySegment()
+				let seg = Segment()
 				seg.title = t
 				seg.startAngleInDegrees = d
 				if !segmentWidthsInDegrees.isEmpty {
@@ -110,16 +115,10 @@ class CircularSegmentedControl: UIControl {
 		m_selectedSegment = n
 	}
 	
+	// private properties
 	private var m_selectedSegment: Int = -1
 	
-	private struct MySegment {
-		var title: String = "A"
-		var startAngleInDegrees: Double = 0.0
-		var endAngleInDegrees: Double = 0.0
-		var path: UIBezierPath = UIBezierPath()
-	}
-	
-	private var theSegments: [MySegment] = []
+	private var theSegments: [Segment] = []
 	
 	private let ringLayer: CAShapeLayer = CAShapeLayer()
 	private let linesLayer: CAShapeLayer = CAShapeLayer()
@@ -133,14 +132,15 @@ class CircularSegmentedControl: UIControl {
 	private var startTime: TimeInterval = 0.0
 	
 	// properties used for animation
-	private var sourceDegreeStart = 0.0
-	private var sourceDegreeEnd = 0.0
-	private var startDegreeDist: CGFloat = 0.0
+	private var sourceDegreeStart: Double = 0.0
+	private var sourceDegreeEnd: Double = 0.0
+	private var startDegreeDist: Double = 0.0
 	
-	private var targetDegreeStart = 0.0
-	private var targetDegreeEnd = 0.0
-	private var endDegreeDist: CGFloat = 0.0
+	private var targetDegreeStart: Double = 0.0
+	private var targetDegreeEnd: Double = 0.0
+	private var endDegreeDist: Double = 0.0
 	
+	// used to track layout changes
 	private var myBounds: CGRect = .zero
 	
 	init() {
@@ -158,7 +158,6 @@ class CircularSegmentedControl: UIControl {
 		commonInit()
 	}
 	
-	// Setup view
 	private func commonInit() {
 		
 		ringLayer.fillColor = ringFillColor.cgColor
@@ -173,10 +172,10 @@ class CircularSegmentedControl: UIControl {
 		segmentLayer.strokeColor = UIColor.clear.cgColor
 		
 		segmentLayer.shadowColor = UIColor.black.cgColor
-		segmentLayer.shadowOpacity = 0.20
 		segmentLayer.shadowOffset = .zero
 		segmentLayer.shadowRadius = 2.0
-		
+		segmentLayer.shadowOpacity = segmentShadowOpacity
+
 		layer.addSublayer(ringLayer)
 		layer.addSublayer(linesLayer)
 		layer.addSublayer(segmentLayer)
@@ -290,14 +289,21 @@ class CircularSegmentedControl: UIControl {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		// don't allow a new selection while animation is in progress
 		if let dl = displayLink, !dl.isPaused {
 			return
 		}
+
 		guard let t = touches.first else { return }
 		let p = t.location(in: self)
 		
 		for i in 0..<theSegments.count {
 			if theSegments[i].path.contains(p) {
+				// if the current selected segment was tapped,
+				//	don't do anything
+				if m_selectedSegment == i {
+					break
+				}
 				animateSegment(from: m_selectedSegment, to: i)
 				m_selectedSegment = i
 				self.sendActions(for: .valueChanged)

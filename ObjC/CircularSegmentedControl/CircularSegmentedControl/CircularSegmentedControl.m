@@ -23,8 +23,8 @@
 @property (nonatomic, assign) double sourceDegreeEnd;
 @property (nonatomic, assign) double targetDegreeStart;
 @property (nonatomic, assign) double targetDegreeEnd;
-@property (nonatomic, assign) CGFloat startDegreeDist;
-@property (nonatomic, assign) CGFloat endDegreeDist;
+@property (nonatomic, assign) double startDegreeDist;
+@property (nonatomic, assign) double endDegreeDist;
 @property (nonatomic, assign) CGRect myBounds;
 
 @end
@@ -56,9 +56,11 @@
 }
 
 - (void)commonInit {
+	
 	_font = [UIFont systemFontOfSize:16];
 	_textColor = [UIColor blackColor];
 	_segmentColor = [UIColor whiteColor];
+	_segmentShadowOpacity = 0.2;
 	_ringFillColor = [UIColor colorWithWhite:0.95 alpha:1.0];
 	_ringStrokeColor = [UIColor colorWithWhite:0.8 alpha:1.0];
 	_animationDuration = 0.3;
@@ -84,17 +86,21 @@
 	_segmentLayer.strokeColor = UIColor.clearColor.CGColor;
 	
 	_segmentLayer.shadowColor = UIColor.blackColor.CGColor;
-	_segmentLayer.shadowOpacity = 0.20;
 	_segmentLayer.shadowOffset = CGSizeZero;
 	_segmentLayer.shadowRadius = 2.0;
+	_segmentLayer.shadowOpacity = _segmentShadowOpacity;
 
 	[self.layer addSublayer:_ringLayer];
 	[self.layer addSublayer:_linesLayer];
 	[self.layer addSublayer:_segmentLayer];
 	
+	// Setup the display link
 	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateAnimation)];
 	[_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+	
+	// Pause the display link initially
 	_displayLink.paused = YES;
+	
 }
 
 - (void)layoutSubviews {
@@ -444,6 +450,12 @@
 	self.segmentLayer.fillColor = segmentColor.CGColor;
 }
 
+// Segment shadow property
+- (void)setSegmentShadowOpacity:(float)segmentShadowOpacity {
+	_segmentShadowOpacity = segmentShadowOpacity;
+	self.segmentLayer.shadowOpacity = segmentShadowOpacity;
+}
+
 // Ring fill color property
 - (void)setRingFillColor:(UIColor *)ringFillColor {
 	_ringFillColor = ringFillColor;
@@ -475,6 +487,7 @@
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	// don't allow a new selection while animation is in progress
 	if (self.displayLink && !self.displayLink.isPaused) {
 		return;
 	}
@@ -485,6 +498,11 @@
 	for (NSInteger i = 0; i < self.theSegments.count; i++) {
 		Segment *segment = self.theSegments[i];
 		if ([segment.path containsPoint:p]) {
+			// if the current selected segment was tapped,
+			//	don't do anything
+			if (self.m_selectedSegment == i) {
+				break;
+			}
 			[self animateSegmentFrom:self.m_selectedSegment to:i];
 			self.m_selectedSegment = i;
 			[self sendActionsForControlEvents:UIControlEventValueChanged];

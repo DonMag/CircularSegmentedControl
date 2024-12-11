@@ -16,6 +16,7 @@
 		FCB57F3E2D03954B007C908E /* CircularSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F3D2D03954B007C908E /* CircularSegmentedControl.swift */; };
 		FCB57F6E2D09C4E7007C908E /* ArcTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F6D2D09C4E7007C908E /* ArcTextView.swift */; };
 		FCB57F702D09C692007C908E /* Segment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F6F2D09C692007C908E /* Segment.swift */; };
+		FCB57F752D0A2845007C908E /* SampleSegmentTitles.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB57F742D0A2845007C908E /* SampleSegmentTitles.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		FCB57F3D2D03954B007C908E /* CircularSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularSegmentedControl.swift; sourceTree = "<group>"; };
 		FCB57F6D2D09C4E7007C908E /* ArcTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcTextView.swift; sourceTree = "<group>"; };
 		FCB57F6F2D09C692007C908E /* Segment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Segment.swift; sourceTree = "<group>"; };
+		FCB57F742D0A2845007C908E /* SampleSegmentTitles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleSegmentTitles.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				FCB57F3D2D03954B007C908E /* CircularSegmentedControl.swift */,
 				FCB57F6F2D09C692007C908E /* Segment.swift */,
 				FCB57F6D2D09C4E7007C908E /* ArcTextView.swift */,
+				FCB57F742D0A2845007C908E /* SampleSegmentTitles.swift */,
 				FCB57F2F2D039507007C908E /* Main.storyboard */,
 				FCB57F322D039509007C908E /* Assets.xcassets */,
 				FCB57F342D039509007C908E /* LaunchScreen.storyboard */,
@@ -147,6 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCB57F752D0A2845007C908E /* SampleSegmentTitles.swift in Sources */,
 				FCB57F2E2D039507007C908E /* ViewController.swift in Sources */,
 				FCB57F702D09C692007C908E /* Segment.swift in Sources */,
 				FCB57F2A2D039507007C908E /* AppDelegate.swift in Sources */,

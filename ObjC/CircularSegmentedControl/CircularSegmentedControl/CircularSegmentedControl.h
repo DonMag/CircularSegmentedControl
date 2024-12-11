@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, strong) UIColor *segmentColor;
+@property (nonatomic, assign) float segmentShadowOpacity;
 @property (nonatomic, strong) UIColor *ringFillColor;
 @property (nonatomic, strong) UIColor *ringStrokeColor;
 @property (nonatomic, strong) NSArray<NSString *> *titles;
