@@ -9,10 +9,22 @@ import UIKit
 
 class CircularSegmentedControl: UIControl {
 	
+	enum Distribution {
+		case equal, proportional, userDefined
+	}
+	public var distribution: Distribution = .equal {
+		didSet {
+			setMyNeedsLayout()
+		}
+	}
 	public var font: UIFont = .systemFont(ofSize: 16) {
 		didSet {
-			for v in arcTexts {
-				v.font = font
+			if distribution == .proportional {
+				setMyNeedsLayout()
+			} else {
+				for v in arcTexts {
+					v.font = font
+				}
 			}
 		}
 	}
@@ -43,60 +55,27 @@ class CircularSegmentedControl: UIControl {
 			linesLayer.strokeColor = ringStrokeColor.cgColor
 		}
 	}
-	public var titles: [String] = [] {
-		didSet {
-			theSegments = []
-			let segSize = 360.0 / Double(titles.count)
-			var d: Double = 0.0
-			for (i, t) in titles.enumerated() {
-				let seg = Segment()
-				seg.title = t
-				seg.startAngleInDegrees = d
-				if !segmentWidthsInDegrees.isEmpty {
-					if i == titles.count - 1, segmentWidthsInDegrees.count < titles.count {
-						d = 360.0
-					} else {
-						d += segmentWidthsInDegrees[i]
-					}
-				} else {
-					d += segSize
-				}
-				seg.endAngleInDegrees = d
-				theSegments.append(seg)
-			}
-			updateLayout()
-		}
-	}
+	
+	public var titles: [String] = [] { didSet { setMyNeedsLayout() } }
+	
 	public var segmentWidthsInDegrees: [Double] = [] {
 		didSet {
-			if !theSegments.isEmpty {
-				guard segmentWidthsInDegrees.count >= theSegments.count - 1 else {
-					//fatalError("Must set segment widths to 1 less than titles count")
-					return
-				}
-				var d: Double = 0.0
-				for i in 0..<theSegments.count {
-					theSegments[i].startAngleInDegrees = d
-					if i == theSegments.count - 1, segmentWidthsInDegrees.count < theSegments.count {
-						theSegments[i].endAngleInDegrees = 360.0
-					} else {
-						d += segmentWidthsInDegrees[i]
-						theSegments[i].endAngleInDegrees = d
-					}
-				}
-				updateLayout()
-			}
+			distribution = .userDefined
+			setMyNeedsLayout()
 		}
 	}
 	
 	// Duration of segment animation in seconds
 	public var animationDuration: TimeInterval = 0.3
 	
-	public var originDegrees: Double = 0.0 { didSet { updateLayout() } }
+	// angle for start of first segment
+	public var originDegrees: Double = 0.0 { didSet { setMyNeedsLayout() } }
 	
-	public var ringWidth: CGFloat = 40.0 { didSet { updateLayout() } }
+	// width of ring
+	public var ringWidth: CGFloat = 40.0 { didSet { setMyNeedsLayout() } }
 	
-	public var cornerRadius: CGFloat = 6.0 { didSet { updateLayout() } }
+	// radius of segment corners
+	public var cornerRadius: CGFloat = 6.0 { didSet { setMyNeedsLayout() } }
 	
 	public var selectedSegmentIndex: Int {
 		set {
@@ -117,6 +96,7 @@ class CircularSegmentedControl: UIControl {
 	
 	// private properties
 	private var m_selectedSegment: Int = -1
+	private var m_needsLayout: Bool = true
 	
 	private var theSegments: [Segment] = []
 	
@@ -189,11 +169,17 @@ class CircularSegmentedControl: UIControl {
 		
 	}
 	
+	private func setMyNeedsLayout() {
+		m_needsLayout = true
+		setNeedsLayout()
+	}
+	
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		
-		if myBounds != bounds {
+		if myBounds != bounds || m_needsLayout {
 			myBounds = bounds
+			m_needsLayout = false
 			updateLayout()
 		}
 	}
@@ -219,6 +205,54 @@ class CircularSegmentedControl: UIControl {
 		}
 		arcTexts = []
 		
+		if titles.isEmpty { return }
+		
+		theSegments = []
+		
+		var segWidths: [Double] = []
+		var dist: Distribution = distribution
+		
+		if distribution == .userDefined {
+			if segmentWidthsInDegrees.isEmpty {
+				dist = .equal
+			} else {
+				segWidths = segmentWidthsInDegrees
+				if segWidths.count < titles.count {
+					let totalWidths: Double = segmentWidthsInDegrees.reduce(0, +)
+					let remaining: Double = 360.0 - totalWidths
+					let n = titles.count - segmentWidthsInDegrees.count
+					let diff: Double = remaining / Double(n)
+					for _ in 0..<n {
+						segWidths.append(diff)
+					}
+				}
+			}
+		}
+		
+		if dist == .equal {
+			segWidths = Array(repeating: 360.0 / Double(titles.count), count: titles.count)
+		} else if dist == .proportional {
+			var strLengths: [Double] = []
+			let fontAttributes = [NSAttributedString.Key.font: font]
+			for str in titles {
+				strLengths.append(str.size(withAttributes: fontAttributes).width)
+			}
+			let totalLen: Double = strLengths.reduce(0, +)
+			for len in strLengths {
+				segWidths.append(360.0 * (len / totalLen))
+			}
+		}
+
+		var d: Double = 0.0
+		for (i, t) in titles.enumerated() {
+			let seg = Segment()
+			seg.title = t
+			seg.startAngleInDegrees = d
+			d += segWidths[i]
+			seg.endAngleInDegrees = d
+			theSegments.append(seg)
+		}
+
 		if !theSegments.isEmpty {
 			// pOuter and pInner paths are used to get the points for the separator lines
 			let pOuter = UIBezierPath()

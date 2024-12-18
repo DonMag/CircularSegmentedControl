@@ -12,6 +12,7 @@
 @interface CircularSegmentedControl ()
 
 @property (nonatomic, assign) NSInteger m_selectedSegment;
+@property (nonatomic, assign) BOOL m_needsLayout;
 @property (nonatomic, strong) NSMutableArray <Segment *> *theSegments;
 @property (nonatomic, strong) CAShapeLayer *ringLayer;
 @property (nonatomic, strong) CAShapeLayer *linesLayer;
@@ -57,6 +58,7 @@
 
 - (void)commonInit {
 	
+	_distribution = equal;
 	_font = [UIFont systemFontOfSize:16];
 	_textColor = [UIColor blackColor];
 	_segmentColor = [UIColor whiteColor];
@@ -101,16 +103,21 @@
 	// Pause the display link initially
 	_displayLink.paused = YES;
 	
+	[self setMyNeedsLayout];
 }
 
 - (void)layoutSubviews {
 	[super layoutSubviews];
-	if (!CGRectEqualToRect(_myBounds, self.bounds)) {
+	if (!CGRectEqualToRect(_myBounds, self.bounds) || _m_needsLayout) {
 		_myBounds = self.bounds;
+		_m_needsLayout = NO;
 		[self updateLayout];
 	}
 }
-
+- (void)setMyNeedsLayout {
+	_m_needsLayout = YES;
+	[self setNeedsLayout];
+}
 - (void)updateLayout {
 	double r1 = self.bounds.size.width * 0.5;
 	double r2 = r1 - self.ringWidth;
@@ -131,6 +138,63 @@
 	}
 	self.arcTexts = [NSMutableArray array];
 	
+	if (self.titles.count == 0) {
+		return;
+	}
+	
+	self.theSegments = [NSMutableArray array];
+	NSMutableArray <NSNumber *> *segWidths = [NSMutableArray array];
+	Distribution dist = self.distribution;
+	
+	if (self.distribution == userDefined) {
+		if (self.segmentWidthsInDegrees.count == 0) {
+			dist = equal;
+		} else {
+			segWidths = [NSMutableArray arrayWithArray:self.segmentWidthsInDegrees];
+			if (segWidths.count < self.titles.count) {
+				NSNumber *totalWidths = [segWidths valueForKeyPath:@"@sum.self"];
+				double remaining = 360.0 - [totalWidths doubleValue];
+				NSInteger n = self.titles.count - self.segmentWidthsInDegrees.count;
+				double diff = remaining / n;
+				for (int i = 0; i < n; i++) {
+					[segWidths addObject:@(diff)];
+				}
+			}
+		}
+	}
+	
+	if (dist == equal) {
+		for (int i = 0; i < self.titles.count; i++) {
+			[segWidths addObject:@(360.0 / self.titles.count)];
+		}
+	} else if (dist == proportional) {
+		NSMutableArray *strLengths = [NSMutableArray array];
+		NSDictionary *fontAttributes = @{NSFontAttributeName: self.font};
+		double totalLen = 0.0;
+		
+		for (NSString *str in self.titles) {
+			CGSize size = [str sizeWithAttributes:fontAttributes];
+			[strLengths addObject:@(size.width)];
+			totalLen += size.width;
+		}
+		
+		NSMutableArray *segWidths = [NSMutableArray array];
+		for (NSNumber *len in strLengths) {
+			double width = 360.0 * ([len doubleValue] / totalLen);
+			[segWidths addObject:@(width)];
+		}
+	}
+
+	double d = 0.0;
+	for (NSUInteger i = 0; i <self.titles.count; i++) {
+		Segment *seg = [Segment new];
+		seg.title = self.titles[i];
+		seg.startAngleInDegrees = d;
+		d += [segWidths[i] doubleValue];
+		seg.endAngleInDegrees = d;
+		[self.theSegments addObject:seg];
+	}
+
 	if (self.theSegments.count > 0) {
 		// pOuter and pInner paths are used to get the points for the separator lines
 		UIBezierPath *pOuter = [UIBezierPath bezierPath];
@@ -371,68 +435,25 @@
 
 - (void)setTitles:(NSArray<NSString *> *)titles {
 	_titles = titles;
-	
-	self.theSegments = [NSMutableArray array];
-	double segSize = 360.0 / (double)titles.count;
-	double d = 0.0;
-	
-	for (NSInteger i = 0; i < titles.count; i++) {
-		NSString *t = titles[i];
-		
-		Segment *seg = [[Segment alloc] init];
-		seg.title = t;
-		seg.startAngleInDegrees = d;
-		
-		if (self.segmentWidthsInDegrees.count > 0) {
-			if (i == titles.count - 1 && self.segmentWidthsInDegrees.count < titles.count) {
-				d = 360.0;
-			} else {
-				d += [self.segmentWidthsInDegrees[i] doubleValue];
-			}
-		} else {
-			d += segSize;
-		}
-		
-		seg.endAngleInDegrees = d;
-		[self.theSegments addObject:seg];
-	}
-	
-	[self updateLayout];
+	[self setMyNeedsLayout];
 }
 
 // Segment widths property
 - (void)setSegmentWidthsInDegrees:(NSArray<NSNumber *> *)segmentWidthsInDegrees {
 	_segmentWidthsInDegrees = segmentWidthsInDegrees;
-	
-	if (self.theSegments.count > 0) {
-		if (segmentWidthsInDegrees.count < self.theSegments.count - 1) {
-			// Handle the error case
-			// You may want to add an error handling mechanism instead of returning
-			return;
-		}
-		
-		double d = 0.0;
-		for (NSInteger i = 0; i < self.theSegments.count; i++) {
-			Segment *segment = self.theSegments[i];
-			segment.startAngleInDegrees = d;
-			
-			if (i == self.theSegments.count - 1 && segmentWidthsInDegrees.count < self.theSegments.count) {
-				segment.endAngleInDegrees = 360.0;
-			} else {
-				d += segmentWidthsInDegrees[i].doubleValue;
-				segment.endAngleInDegrees = d;
-			}
-		}
-		
-		[self updateLayout];
-	}
+	self.distribution = userDefined;
+	[self setMyNeedsLayout];
 }
 
 // Font property
 - (void)setFont:(UIFont *)font {
 	_font = font;
-	for (UILabel *v in self.arcTexts) {
-		v.font = font;
+	if (self.distribution == proportional) {
+		[self setMyNeedsLayout];
+	} else {
+		for (UILabel *v in self.arcTexts) {
+			v.font = font;
+		}
 	}
 }
 
@@ -468,22 +489,22 @@
 	self.linesLayer.strokeColor = ringStrokeColor.CGColor;
 }
 
-// Property for originDegrees
+// angle for start of first segment
 - (void)setOriginDegrees:(double)originDegrees {
 	_originDegrees = originDegrees;
-	[self updateLayout];
+	[self setMyNeedsLayout];
 }
 
-// Property for ringWidth
+// width of ring
 - (void)setRingWidth:(CGFloat)ringWidth {
 	_ringWidth = ringWidth;
-	[self updateLayout];
+	[self setMyNeedsLayout];
 }
 
-// Property for cornerRadius
+// radius of segment corners
 - (void)setCornerRadius:(CGFloat)cornerRadius {
 	_cornerRadius = cornerRadius;
-	[self updateLayout];
+	[self setMyNeedsLayout];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {

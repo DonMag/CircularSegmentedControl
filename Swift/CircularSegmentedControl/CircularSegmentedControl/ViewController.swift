@@ -33,14 +33,20 @@ class ViewController: UIViewController {
 		// sample segment titles
 		cSeg.titles = SampleSegmentTitles().daysOfTheWeek
 		//cSeg.titles = SampleSegmentTitles().uiKitNamedColors
-		//cSeg.titles = SampleSegmentTitles().alphabet(numChars: 6)
+		cSeg.titles = SampleSegmentTitles().alphabet(numChars: 6)
+		
+		//cSeg.titles = ["A", "B", "Long Title", "C"]
+		//cSeg.distribution = .proportional
 		
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 90.0, 45.0, 75.0, 60.0]
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 40.0, 35.0, 45.0, 20.0]
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 40.0, 35.0, 45.0, 20.0]
-		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 60.0]
 		
-		cSeg.originDegrees = -45.0
+		cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 60.0, 40.0]
+		cSeg.segmentWidthsInDegrees = [30.0]
+		//cSeg.distribution = .equal
+		
+		//cSeg.originDegrees = -45.0
 
 		cSeg.font = .systemFont(ofSize: 15.0, weight: .light)
 		cSeg.textColor = .systemBlue

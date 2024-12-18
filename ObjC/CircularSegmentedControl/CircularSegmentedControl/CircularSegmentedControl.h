@@ -9,8 +9,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, Distribution) {
+	equal,
+	proportional,
+	userDefined
+};
+
 @interface CircularSegmentedControl : UIControl
 
+@property (nonatomic, assign) Distribution distribution;
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, strong) UIColor *segmentColor;
