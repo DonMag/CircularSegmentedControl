@@ -59,7 +59,7 @@
 
 - (void)commonInit {
 	
-	_distribution = equal;
+	_distribution = DistributionEqual;
 	_font = [UIFont systemFontOfSize:16];
 	_textColor = [UIColor blackColor];
 	_segmentColor = [UIColor whiteColor];
@@ -149,29 +149,42 @@
 	self.theSegments = [NSMutableArray array];
 	NSMutableArray <NSNumber *> *segWidths = [NSMutableArray array];
 	Distribution dist = self.distribution;
-	
-	if (self.distribution == userDefined) {
+
+	if (self.distribution == DistributionUserDefined) {
 		if (self.segmentWidthsInDegrees.count == 0) {
-			dist = equal;
+			dist = DistributionEqual;
 		} else {
-			segWidths = [NSMutableArray arrayWithArray:self.segmentWidthsInDegrees];
-			if (segWidths.count < self.titles.count) {
-				NSNumber *totalWidths = [segWidths valueForKeyPath:@"@sum.self"];
-				double remaining = 360.0 - [totalWidths doubleValue];
-				NSInteger n = self.titles.count - self.segmentWidthsInDegrees.count;
-				double diff = remaining / n;
-				for (int i = 0; i < n; i++) {
-					[segWidths addObject:@(diff)];
+			segWidths = [self.segmentWidthsInDegrees mutableCopy];
+			// if there are more user-defined widths than titles
+			// strip off the extras
+			while (segWidths.count > self.titles.count) {
+				[segWidths removeLastObject];
+			}
+			// if there are fewer user-defined widths than titles
+			// append Zeroes to the end
+			while (segWidths.count < self.titles.count) {
+				[segWidths addObject:@(0.0)];
+			}
+			// replace any Zero-widths with equal widths
+			double totalWidths = [[segWidths valueForKeyPath:@"@sum.doubleValue"] doubleValue];
+			double remaining = 360.0 - totalWidths;
+			NSUInteger nZeroes = [[segWidths filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF == 0"]] count];
+			if (nZeroes > 0) {
+				double diff = remaining / (double)nZeroes;
+				for (NSUInteger i = 0; i < segWidths.count; i++) {
+					if ([segWidths[i] doubleValue] == 0.0) {
+						segWidths[i] = @(diff);
+					}
 				}
 			}
 		}
 	}
 	
-	if (dist == equal) {
+	if (dist == DistributionEqual) {
 		for (int i = 0; i < self.titles.count; i++) {
 			[segWidths addObject:@(360.0 / self.titles.count)];
 		}
-	} else if (dist == proportional) {
+	} else if (dist == DistributionProportional) {
 		NSMutableArray *strLengths = [NSMutableArray array];
 		NSDictionary *fontAttributes = @{NSFontAttributeName: self.font};
 		double totalLen = 0.0;
@@ -248,6 +261,24 @@
 			v.radius = r1 - self.ringWidth / 2.0;
 			v.textColor = self.textColor;
 			v.font = self.font;
+			
+			// the arc-text may be too big to fit
+			//	so we create a path matching the "arc segment"
+			//	inset a little bit
+			//	to use as a mask
+			d1 += [self degreesToRadians:2.0];
+			d2 -= [self degreesToRadians:2.0];
+			pSeg = [UIBezierPath bezierPath];
+			[pSeg addArcWithCenter:cntr radius:r1 - 4.0 startAngle:d1 endAngle:d2 clockwise:YES];
+			[pSeg addArcWithCenter:cntr radius:r2 + 4.0 startAngle:d2 endAngle:d1 clockwise:NO];
+			[pSeg closePath];
+
+			CAShapeLayer *msk = [CAShapeLayer new];
+			msk.fillColor = UIColor.redColor.CGColor;
+			msk.strokeColor = UIColor.clearColor.CGColor;
+			msk.path = pSeg.CGPath;
+			v.layer.mask = msk;
+			
 			[self.arcTexts addObject:v];
 		}
 
@@ -445,14 +476,14 @@
 // Segment widths property
 - (void)setSegmentWidthsInDegrees:(NSArray<NSNumber *> *)segmentWidthsInDegrees {
 	_segmentWidthsInDegrees = segmentWidthsInDegrees;
-	self.distribution = userDefined;
+	self.distribution = DistributionUserDefined;
 	[self setMyNeedsLayout];
 }
 
 // Font property
 - (void)setFont:(UIFont *)font {
 	_font = font;
-	if (self.distribution == proportional) {
+	if (self.distribution == DistributionProportional) {
 		[self setMyNeedsLayout];
 	} else {
 		for (UILabel *v in self.arcTexts) {

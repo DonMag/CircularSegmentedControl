@@ -10,9 +10,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, Distribution) {
-	equal,
-	proportional,
-	userDefined
+	DistributionEqual,
+	DistributionProportional,
+	DistributionUserDefined
 };
 
 @interface CircularSegmentedControl : UIControl

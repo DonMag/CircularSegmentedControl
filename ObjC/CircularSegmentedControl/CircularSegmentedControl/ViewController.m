@@ -35,12 +35,15 @@
 	
 	csc.titles = @[@"A", @"B", @"C", @"D", @"E", @"F"];
 	//csc.titles = [[SampleSegmentTitles new] daysOfTheWeek];
+	csc.titles = [[SampleSegmentTitles new] alphabetWithNumChars:7];
 	csc.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightLight];
 	csc.textColor = UIColor.redColor;
-	csc.segmentWidthsInDegrees = @[@80.0, @30.0, @45.0, @60.0, @30.0];
-	csc.segmentWidthsInDegrees = @[@80.0, @30.0, @45.0, @60.0, @30.0, @20.0];
+	//csc.segmentWidthsInDegrees = @[@80.0, @30.0, @45.0, @60.0, @30.0];
+	//csc.segmentWidthsInDegrees = @[@80.0, @30.0, @45.0, @60.0, @30.0, @20.0];
 	
-	csc.originDegrees = -45.0;
+	csc.segmentWidthsInDegrees = @[@0.0, @0.0, @0.0, @120.0, @0.0];
+	
+	//csc.originDegrees = -45.0;
 	
 }
 

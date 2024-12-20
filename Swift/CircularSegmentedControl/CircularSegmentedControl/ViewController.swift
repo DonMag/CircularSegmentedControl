@@ -42,13 +42,13 @@ class ViewController: UIViewController {
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 40.0, 35.0, 45.0, 20.0]
 		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 40.0, 35.0, 45.0, 20.0]
 		
-		cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 60.0, 40.0]
-		cSeg.segmentWidthsInDegrees = [30.0]
-		//cSeg.distribution = .equal
+		//cSeg.segmentWidthsInDegrees = [30.0, 30.0, 70.0, 30.0, 60.0, 40.0]
+		cSeg.segmentWidthsInDegrees = [30, 30, 30, 0, 30, 30]
+		cSeg.distribution = .DistributionEqual
 		
 		//cSeg.originDegrees = -45.0
 
-		cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
+		//cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
 		//cSeg.textColor = .systemBlue
 		
 		cSeg.addTarget(self, action: #selector(valChanged(_:)), for: .valueChanged)

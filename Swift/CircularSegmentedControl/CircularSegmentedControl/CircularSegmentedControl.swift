@@ -10,16 +10,16 @@ import UIKit
 class CircularSegmentedControl: UIControl {
 	
 	enum Distribution {
-		case equal, proportional, userDefined
+		case DistributionEqual, DistributionProportional, DistributionUserDefined
 	}
-	public var distribution: Distribution = .equal {
+	public var distribution: Distribution = .DistributionEqual {
 		didSet {
 			setMyNeedsLayout()
 		}
 	}
 	public var font: UIFont = .systemFont(ofSize: 16) {
 		didSet {
-			if distribution == .proportional {
+			if distribution == .DistributionProportional {
 				setMyNeedsLayout()
 			} else {
 				for v in arcTexts {
@@ -60,7 +60,7 @@ class CircularSegmentedControl: UIControl {
 	
 	public var segmentWidthsInDegrees: [Double] = [] {
 		didSet {
-			distribution = .userDefined
+			distribution = .DistributionUserDefined
 			setMyNeedsLayout()
 		}
 	}
@@ -212,27 +212,40 @@ class CircularSegmentedControl: UIControl {
 		
 		var segWidths: [Double] = []
 		var dist: Distribution = distribution
-		
-		if distribution == .userDefined {
+
+		if distribution == .DistributionUserDefined {
 			if segmentWidthsInDegrees.isEmpty {
-				dist = .equal
+				dist = .DistributionEqual
 			} else {
 				segWidths = segmentWidthsInDegrees
-				if segWidths.count < titles.count {
-					let totalWidths: Double = segmentWidthsInDegrees.reduce(0, +)
-					let remaining: Double = 360.0 - totalWidths
-					let n = titles.count - segmentWidthsInDegrees.count
-					let diff: Double = remaining / Double(n)
-					for _ in 0..<n {
-						segWidths.append(diff)
+				// if there are more user-defined widths than titles
+				//	strip off the extras
+				while segWidths.count > titles.count {
+					segWidths.removeLast()
+				}
+				// if there are fewer user-defined widths than titles
+				//	append Zeroes to the end
+				while segWidths.count < titles.count {
+					segWidths.append(0.0)
+				}
+				// replace any Zero-widths with equal widths
+				let totalWidths: Double = segWidths.reduce(0, +)
+				let remaining: Double = 360.0 - totalWidths
+				let nZeroes: Int = segWidths.filter { $0 == 0 }.count
+				if nZeroes > 0 {
+					let diff: Double = remaining / Double(nZeroes)
+					for i in 0..<segWidths.count {
+						if segWidths[i] == 0.0 {
+							segWidths[i] = diff
+						}
 					}
 				}
 			}
 		}
-		
-		if dist == .equal {
+
+		if dist == .DistributionEqual {
 			segWidths = Array(repeating: 360.0 / Double(titles.count), count: titles.count)
-		} else if dist == .proportional {
+		} else if dist == .DistributionProportional {
 			var strLengths: [Double] = []
 			let fontAttributes = [NSAttributedString.Key.font: font]
 			for str in titles {
@@ -277,7 +290,7 @@ class CircularSegmentedControl: UIControl {
 				pLines.addLine(to: pInner.currentPoint)
 				
 				// create path used to detect touch
-				let pSeg = UIBezierPath()
+				var pSeg = UIBezierPath()
 				pSeg.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pSeg.addArc(withCenter: cntr, radius: r2, startAngle: d2, endAngle: d1, clockwise: false)
 				pSeg.close()
@@ -301,6 +314,24 @@ class CircularSegmentedControl: UIControl {
 				v.radius = r1 - ringWidth / 2.0
 				v.textColor = textColor
 				v.font = font
+				
+				// the arc-text may be too big to fit
+				//	so we create a path matching the "arc segment"
+				//	inset a little bit
+				//	to use as a mask
+				d1 += degreesToRadians(2.0)
+				d2 -= degreesToRadians(2.0)
+				pSeg = UIBezierPath()
+				pSeg.addArc(withCenter: cntr, radius: r1 - 4.0, startAngle: d1, endAngle: d2, clockwise: true)
+				pSeg.addArc(withCenter: cntr, radius: r2 + 4.0, startAngle: d2, endAngle: d1, clockwise: false)
+				pSeg.close()
+				
+				let msk = CAShapeLayer()
+				msk.fillColor = UIColor.red.cgColor
+				msk.strokeColor = UIColor.clear.cgColor
+				msk.path = pSeg.cgPath
+				v.layer.mask = msk
+				
 				arcTexts.append(v)
 			}
 			
