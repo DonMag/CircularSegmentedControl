@@ -96,6 +96,7 @@ class CircularSegmentedControl: UIControl {
 	
 	// private properties
 	private var m_selectedSegment: Int = 0
+	private var m_touchIDX: Int = 0
 	private var m_needsLayout: Bool = true
 	
 	private var theSegments: [Segment] = []
@@ -327,25 +328,52 @@ class CircularSegmentedControl: UIControl {
 		if let dl = displayLink, !dl.isPaused {
 			return
 		}
-
+		
+		m_touchIDX = -1
+		
 		guard let t = touches.first else { return }
 		let p = t.location(in: self)
 		
 		for i in 0..<theSegments.count {
 			if theSegments[i].path.contains(p) {
-				// if the current selected segment was tapped,
-				//	don't do anything
+				// if the current selected segment was tapped, don't do anything
 				if m_selectedSegment == i {
 					break
 				}
-				animateSegment(from: m_selectedSegment, to: i)
-				m_selectedSegment = i
-				self.sendActions(for: .valueChanged)
+				m_touchIDX = i
+				arcTexts[m_touchIDX].alpha = 0.4
 				break
 			}
 		}
 	}
-	
+	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if m_touchIDX < 0 {
+			return
+		}
+		guard let t = touches.first else { return }
+		let p = t.location(in: self)
+		arcTexts[m_touchIDX].alpha = theSegments[m_touchIDX].path.contains(p) ? 0.4 : 1.0
+	}
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if m_touchIDX < 0 {
+			return
+		}
+		guard let t = touches.first else { return }
+		let p = t.location(in: self)
+		arcTexts[m_touchIDX].alpha = 1.0
+		if theSegments[m_touchIDX].path.contains(p) {
+			animateSegment(from: m_selectedSegment, to: m_touchIDX)
+			m_selectedSegment = m_touchIDX
+			self.sendActions(for: .valueChanged)
+		}
+	}
+	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if m_touchIDX < 0 {
+			return
+		}
+		arcTexts[m_touchIDX].alpha = 1.0
+	}
+
 	/*
 	 Arc with rounded corners - based on https://stackoverflow.com/a/61977919/6257435
 	 */

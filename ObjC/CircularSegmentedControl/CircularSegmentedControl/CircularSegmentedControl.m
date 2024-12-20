@@ -12,6 +12,7 @@
 @interface CircularSegmentedControl ()
 
 @property (nonatomic, assign) NSInteger m_selectedSegment;
+@property (nonatomic, assign) NSInteger m_touchIDX;
 @property (nonatomic, assign) BOOL m_needsLayout;
 @property (nonatomic, strong) NSMutableArray <Segment *> *theSegments;
 @property (nonatomic, strong) CAShapeLayer *ringLayer;
@@ -70,6 +71,9 @@
 	_ringWidth = 40.0;
 	_cornerRadius = 6.0;
 	_selectedSegmentIndex = 0;
+	
+	_m_selectedSegment = 0;
+	_m_touchIDX = 0;
 	
 	_ringLayer = [CAShapeLayer layer];
 	_linesLayer = [CAShapeLayer layer];
@@ -513,23 +517,52 @@
 		return;
 	}
 	
+	self.m_touchIDX = -1;
+	
 	UITouch *touch = [touches anyObject];
 	CGPoint p = [touch locationInView:self];
 	
 	for (NSInteger i = 0; i < self.theSegments.count; i++) {
 		Segment *segment = self.theSegments[i];
 		if ([segment.path containsPoint:p]) {
-			// if the current selected segment was tapped,
-			//	don't do anything
+			// if the current selected segment was tapped, don't do anything
 			if (self.m_selectedSegment == i) {
 				break;
 			}
-			[self animateSegmentFrom:self.m_selectedSegment to:i];
-			self.m_selectedSegment = i;
-			[self sendActionsForControlEvents:UIControlEventValueChanged];
+			self.m_touchIDX = i;
+			((UIView *)self.arcTexts[self.m_touchIDX]).alpha = 0.4;
 			break;
 		}
 	}
+}
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	if (self.m_touchIDX < 0) {
+		return;
+	}
+	UITouch *touch = [touches anyObject];
+	CGPoint p = [touch locationInView:self];
+	Segment *segment = self.theSegments[self.m_touchIDX];
+	((UIView *)self.arcTexts[self.m_touchIDX]).alpha = [segment.path containsPoint:p] ? 0.4 : 1.0;
+}
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	if (self.m_touchIDX < 0) {
+		return;
+	}
+	UITouch *touch = [touches anyObject];
+	CGPoint p = [touch locationInView:self];
+	((UIView *)self.arcTexts[self.m_touchIDX]).alpha = 1.0;
+	Segment *segment = self.theSegments[self.m_touchIDX];
+	if ([segment.path containsPoint:p]) {
+		[self animateSegmentFrom:self.m_selectedSegment to:self.m_touchIDX];
+		self.m_selectedSegment = self.m_touchIDX;
+		[self sendActionsForControlEvents:UIControlEventValueChanged];
+	}
+}
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	if (self.m_touchIDX < 0) {
+		return;
+	}
+	((UIView *)self.arcTexts[self.m_touchIDX]).alpha = 1.0;
 }
 
 @end

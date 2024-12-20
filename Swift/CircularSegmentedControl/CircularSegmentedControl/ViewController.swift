@@ -48,8 +48,8 @@ class ViewController: UIViewController {
 		
 		//cSeg.originDegrees = -45.0
 
-		cSeg.font = .systemFont(ofSize: 15.0, weight: .light)
-		cSeg.textColor = .systemBlue
+		cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
+		//cSeg.textColor = .systemBlue
 		
 		cSeg.addTarget(self, action: #selector(valChanged(_:)), for: .valueChanged)
 		
