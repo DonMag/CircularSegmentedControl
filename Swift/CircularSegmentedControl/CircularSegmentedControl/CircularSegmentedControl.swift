@@ -95,7 +95,7 @@ class CircularSegmentedControl: UIControl {
 	}
 	
 	// private properties
-	private var m_selectedSegment: Int = -1
+	private var m_selectedSegment: Int = 0
 	private var m_needsLayout: Bool = true
 	
 	private var theSegments: [Segment] = []
@@ -317,7 +317,7 @@ class CircularSegmentedControl: UIControl {
 			
 			linesLayer.path = pLines.cgPath
 			
-			updateSegment(0)
+			updateSegment(m_selectedSegment)
 		}
 		
 	}

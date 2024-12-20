@@ -69,7 +69,7 @@
 	_originDegrees = 0.0;
 	_ringWidth = 40.0;
 	_cornerRadius = 6.0;
-	_selectedSegmentIndex = -1;
+	_selectedSegmentIndex = 0;
 	
 	_ringLayer = [CAShapeLayer layer];
 	_linesLayer = [CAShapeLayer layer];
@@ -262,7 +262,7 @@
 		
 		self.linesLayer.path = pLines.CGPath;
 		
-		[self updateSegment:0];
+		[self updateSegment:self.m_selectedSegment];
 	}
 }
 
