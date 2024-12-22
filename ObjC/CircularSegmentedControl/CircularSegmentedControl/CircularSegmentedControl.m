@@ -16,7 +16,7 @@
 @property (nonatomic, assign) BOOL m_needsLayout;
 @property (nonatomic, strong) NSMutableArray <Segment *> *theSegments;
 @property (nonatomic, strong) CAShapeLayer *ringLayer;
-@property (nonatomic, strong) CAShapeLayer *linesLayer;
+@property (nonatomic, strong) CAShapeLayer *separatorLinesLayer;
 @property (nonatomic, strong) CAShapeLayer *segmentLayer;
 @property (nonatomic, strong) NSMutableArray *arcTexts;
 @property (nonatomic, strong) CADisplayLink *displayLink;
@@ -66,6 +66,7 @@
 	_segmentShadowOpacity = 0.2;
 	_ringFillColor = [UIColor colorWithWhite:0.95 alpha:1.0];
 	_ringStrokeColor = [UIColor colorWithWhite:0.8 alpha:1.0];
+	_separatorLinesColor = [UIColor colorWithWhite:0.8 alpha:1.0];
 	_animationDuration = 0.3;
 	_originDegrees = 0.0;
 	_ringWidth = 40.0;
@@ -76,17 +77,17 @@
 	_m_touchIDX = 0;
 	
 	_ringLayer = [CAShapeLayer layer];
-	_linesLayer = [CAShapeLayer layer];
+	_separatorLinesLayer = [CAShapeLayer layer];
 	_segmentLayer = [CAShapeLayer layer];
 	_arcTexts = [NSMutableArray array];
 	_theSegments = [NSMutableArray array];
 	
 	_ringLayer.fillColor = _ringFillColor.CGColor;
-	_ringLayer.strokeColor = NULL;
+	_ringLayer.strokeColor = _ringStrokeColor.CGColor;
 	
-	_linesLayer.fillColor = NULL;
-	_linesLayer.strokeColor = _ringStrokeColor.CGColor;
-	_linesLayer.lineWidth = 1.0;
+	_separatorLinesLayer.fillColor = NULL;
+	_separatorLinesLayer.strokeColor = _separatorLinesColor.CGColor;
+	_separatorLinesLayer.lineWidth = 1.0;
 	
 	_segmentLayer.fillColor = _segmentColor.CGColor;
 	_segmentLayer.strokeColor = UIColor.clearColor.CGColor;
@@ -97,7 +98,7 @@
 	_segmentLayer.shadowOpacity = _segmentShadowOpacity;
 
 	[self.layer addSublayer:_ringLayer];
-	[self.layer addSublayer:_linesLayer];
+	[self.layer addSublayer:_separatorLinesLayer];
 	[self.layer addSublayer:_segmentLayer];
 	
 	// Setup the display link
@@ -292,10 +293,7 @@
 			[pLines addLineToPoint:pInner.currentPoint];
 		}
 		
-		[pLines appendPath:[UIBezierPath bezierPathWithOvalInRect:self.bounds]];
-		[pLines appendPath:[UIBezierPath bezierPathWithOvalInRect:CGRectInset(self.bounds, self.ringWidth, self.ringWidth)]];
-		
-		self.linesLayer.path = pLines.CGPath;
+		self.separatorLinesLayer.path = pLines.CGPath;
 		
 		[self updateSegment:self.m_selectedSegment];
 	}
@@ -521,7 +519,13 @@
 // Ring stroke color property
 - (void)setRingStrokeColor:(UIColor *)ringStrokeColor {
 	_ringStrokeColor = ringStrokeColor;
-	self.linesLayer.strokeColor = ringStrokeColor.CGColor;
+	self.ringLayer.strokeColor = ringStrokeColor.CGColor;
+}
+
+// Separator lines color property
+- (void)setSeparatorLinesColor:(UIColor *)separatorLinesColor {
+	_separatorLinesColor = separatorLinesColor;
+	self.separatorLinesLayer.strokeColor = separatorLinesColor.CGColor;
 }
 
 // angle for start of first segment

@@ -43,6 +43,9 @@
 	
 	csc.segmentWidthsInDegrees = @[@0.0, @0.0, @0.0, @120.0, @0.0];
 	
+	csc.ringStrokeColor = UIColor.clearColor;
+	csc.separatorLinesColor = UIColor.clearColor;
+	
 	//csc.originDegrees = -45.0;
 	
 }

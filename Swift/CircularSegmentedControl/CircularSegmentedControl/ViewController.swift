@@ -51,6 +51,9 @@ class ViewController: UIViewController {
 		//cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
 		//cSeg.textColor = .systemBlue
 		
+		cSeg.ringStrokeColor = .clear
+		cSeg.separatorLinesColor = .clear
+		
 		cSeg.addTarget(self, action: #selector(valChanged(_:)), for: .valueChanged)
 		
 	}

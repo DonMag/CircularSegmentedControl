@@ -52,10 +52,15 @@ class CircularSegmentedControl: UIControl {
 	}
 	public var ringStrokeColor: UIColor = UIColor(white: 0.8, alpha: 1.0) {
 		didSet {
-			linesLayer.strokeColor = ringStrokeColor.cgColor
+			ringLayer.strokeColor = ringStrokeColor.cgColor
 		}
 	}
-	
+	public var separatorLinesColor: UIColor = UIColor(white: 0.8, alpha: 1.0) {
+		didSet {
+			separatorLinesLayer.strokeColor = separatorLinesColor.cgColor
+		}
+	}
+
 	public var titles: [String] = [] { didSet { setMyNeedsLayout() } }
 	
 	public var segmentWidthsInDegrees: [Double] = [] {
@@ -102,7 +107,7 @@ class CircularSegmentedControl: UIControl {
 	private var theSegments: [Segment] = []
 	
 	private let ringLayer: CAShapeLayer = CAShapeLayer()
-	private let linesLayer: CAShapeLayer = CAShapeLayer()
+	private let separatorLinesLayer: CAShapeLayer = CAShapeLayer()
 	private let segmentLayer: CAShapeLayer = CAShapeLayer()
 	
 	// array to hold the labels
@@ -142,12 +147,12 @@ class CircularSegmentedControl: UIControl {
 	private func commonInit() {
 		
 		ringLayer.fillColor = ringFillColor.cgColor
-		ringLayer.strokeColor = nil
+		ringLayer.strokeColor = ringStrokeColor.cgColor
 		ringLayer.lineWidth = 1.0
 		
-		linesLayer.fillColor = nil
-		linesLayer.strokeColor = ringStrokeColor.cgColor
-		linesLayer.lineWidth = 1.0
+		separatorLinesLayer.fillColor = nil
+		separatorLinesLayer.strokeColor = separatorLinesColor.cgColor
+		separatorLinesLayer.lineWidth = 1.0
 		
 		segmentLayer.fillColor = segmentColor.cgColor
 		segmentLayer.strokeColor = UIColor.clear.cgColor
@@ -158,7 +163,7 @@ class CircularSegmentedControl: UIControl {
 		segmentLayer.shadowOpacity = segmentShadowOpacity
 
 		layer.addSublayer(ringLayer)
-		layer.addSublayer(linesLayer)
+		layer.addSublayer(separatorLinesLayer)
 		layer.addSublayer(segmentLayer)
 		
 		// Setup the display link
@@ -344,10 +349,7 @@ class CircularSegmentedControl: UIControl {
 				pLines.addLine(to: pInner.currentPoint)
 			}
 			
-			pLines.append(UIBezierPath(ovalIn: bounds))
-			pLines.append(UIBezierPath(ovalIn: bounds.insetBy(dx: ringWidth, dy: ringWidth)))
-			
-			linesLayer.path = pLines.cgPath
+			separatorLinesLayer.path = pLines.cgPath
 			
 			updateSegment(m_selectedSegment)
 		}

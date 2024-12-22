@@ -24,6 +24,7 @@ typedef NS_ENUM(NSInteger, Distribution) {
 @property (nonatomic, assign) float segmentShadowOpacity;
 @property (nonatomic, strong) UIColor *ringFillColor;
 @property (nonatomic, strong) UIColor *ringStrokeColor;
+@property (nonatomic, strong) UIColor *separatorLinesColor;
 @property (nonatomic, strong) NSArray<NSString *> *titles;
 @property (nonatomic, strong) NSArray<NSNumber *> *segmentWidthsInDegrees;
 @property (nonatomic, assign) NSTimeInterval animationDuration;
