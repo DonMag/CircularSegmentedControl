@@ -29,6 +29,7 @@ typedef NS_ENUM(NSInteger, Distribution) {
 @property (nonatomic, strong) NSArray<NSNumber *> *segmentWidthsInDegrees;
 @property (nonatomic, assign) NSTimeInterval animationDuration;
 @property (nonatomic, assign) double originDegrees;
+@property (nonatomic, assign) NSInteger topIndex;
 @property (nonatomic, assign) CGFloat ringWidth;
 @property (nonatomic, assign) CGFloat cornerRadius;
 @property (nonatomic, assign) NSInteger selectedSegmentIndex;

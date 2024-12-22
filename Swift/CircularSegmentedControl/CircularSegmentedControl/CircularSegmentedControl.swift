@@ -69,6 +69,7 @@ class CircularSegmentedControl: UIControl {
 			setMyNeedsLayout()
 		}
 	}
+	public var topIndex: Int = -1 { didSet { setMyNeedsLayout() } }
 	
 	// Duration of segment animation in seconds
 	public var animationDuration: TimeInterval = 0.3
@@ -270,6 +271,14 @@ class CircularSegmentedControl: UIControl {
 			d += segWidths[i]
 			seg.endAngleInDegrees = d
 			theSegments.append(seg)
+		}
+
+		if topIndex >= 0 {
+			let topSeg = theSegments[topIndex]
+			let segW = topSeg.endAngleInDegrees - topSeg.startAngleInDegrees
+			originDegrees = -topSeg.startAngleInDegrees
+			originDegrees -= 90.0
+			originDegrees -= segW * 0.5
 		}
 
 		if !theSegments.isEmpty {

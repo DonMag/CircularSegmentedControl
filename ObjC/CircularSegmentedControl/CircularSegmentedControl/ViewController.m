@@ -12,6 +12,7 @@
 @interface ViewController ()
 {
 	CircularSegmentedControl *csc;
+	NSInteger topIDX;
 }
 @end
 
@@ -20,6 +21,8 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 
+	topIDX = -1;
+	
 	csc = [CircularSegmentedControl new];
 	csc.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview:csc];
@@ -43,8 +46,8 @@
 	
 	csc.segmentWidthsInDegrees = @[@0.0, @0.0, @0.0, @120.0, @0.0];
 	
-	csc.ringStrokeColor = UIColor.clearColor;
-	csc.separatorLinesColor = UIColor.clearColor;
+//	csc.ringStrokeColor = UIColor.clearColor;
+//	csc.separatorLinesColor = UIColor.clearColor;
 	
 	//csc.originDegrees = -45.0;
 	
@@ -52,6 +55,14 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
 	NSLog(@"set 1");
+	
+	topIDX += 1;
+	if (topIDX >= csc.titles.count) {
+		topIDX = -1;
+	}
+	csc.topIndex = topIDX;
+	return;
+	
 	csc.textColor = UIColor.blueColor;
 	csc.font = [UIFont systemFontOfSize:12.0 weight:UIFontWeightBold];
 	csc.ringWidth = 60.0;

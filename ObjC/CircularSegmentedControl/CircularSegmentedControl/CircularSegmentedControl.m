@@ -69,6 +69,7 @@
 	_separatorLinesColor = [UIColor colorWithWhite:0.8 alpha:1.0];
 	_animationDuration = 0.3;
 	_originDegrees = 0.0;
+	_topIndex = -1;
 	_ringWidth = 40.0;
 	_cornerRadius = 6.0;
 	_selectedSegmentIndex = 0;
@@ -211,6 +212,14 @@
 		d += [segWidths[i] doubleValue];
 		seg.endAngleInDegrees = d;
 		[self.theSegments addObject:seg];
+	}
+
+	if (_topIndex >= 0) {
+		Segment *topSeg = self.theSegments[self.topIndex];
+		double segW = topSeg.endAngleInDegrees - topSeg.startAngleInDegrees;
+		self.originDegrees = -topSeg.startAngleInDegrees;
+		self.originDegrees -= 90.0;
+		self.originDegrees -= segW * 0.5;
 	}
 
 	if (self.theSegments.count > 0) {
@@ -531,6 +540,12 @@
 // angle for start of first segment
 - (void)setOriginDegrees:(double)originDegrees {
 	_originDegrees = originDegrees;
+	[self setMyNeedsLayout];
+}
+
+// index of segment to center at top
+- (void)setTopIndex:(NSInteger)topIndex {
+	_topIndex = topIndex;
 	[self setMyNeedsLayout];
 }
 
