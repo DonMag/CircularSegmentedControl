@@ -12,6 +12,7 @@
 @interface CircularSegmentedControl ()
 
 @property (nonatomic, assign) NSInteger m_selectedSegment;
+@property (nonatomic, assign) double m_originDegrees;
 @property (nonatomic, assign) NSInteger m_touchIDX;
 @property (nonatomic, assign) BOOL m_needsLayout;
 @property (nonatomic, strong) NSMutableArray <Segment *> *theSegments;
@@ -68,7 +69,7 @@
 	_ringStrokeColor = [UIColor colorWithWhite:0.8 alpha:1.0];
 	_separatorLinesColor = [UIColor colorWithWhite:0.8 alpha:1.0];
 	_animationDuration = 0.3;
-	_originDegrees = 0.0;
+	_m_originDegrees = 0.0;
 	_topIndex = -1;
 	_ringWidth = 40.0;
 	_cornerRadius = 6.0;
@@ -217,9 +218,11 @@
 	if (_topIndex >= 0) {
 		Segment *topSeg = self.theSegments[self.topIndex];
 		double segW = topSeg.endAngleInDegrees - topSeg.startAngleInDegrees;
-		self.originDegrees = -topSeg.startAngleInDegrees;
-		self.originDegrees -= 90.0;
-		self.originDegrees -= segW * 0.5;
+		self.m_originDegrees = -topSeg.startAngleInDegrees;
+		self.m_originDegrees -= 90.0;
+		self.m_originDegrees -= segW * 0.5;
+	} else {
+		self.m_originDegrees = self.originDegrees;
 	}
 
 	if (self.theSegments.count > 0) {
@@ -236,8 +239,8 @@
 			d1 = [self degreesToRadians:segment.startAngleInDegrees];
 			d2 = [self degreesToRadians:segment.endAngleInDegrees];
 			
-			d1 += [self degreesToRadians:self.originDegrees];
-			d2 += [self degreesToRadians:self.originDegrees];
+			d1 += [self degreesToRadians:self.m_originDegrees];
+			d2 += [self degreesToRadians:self.m_originDegrees];
 			
 			[pOuter addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pInner addArcWithCenter:cntr radius:r2 startAngle:d1 endAngle:d2 clockwise:YES];
@@ -267,7 +270,7 @@
 			
 			// configure the arc-text
 			v.text = segment.title;
-			v.startAngle = [self degreesToRadians:[self midAngle:segment.startAngleInDegrees a2:segment.endAngleInDegrees] + self.originDegrees];
+			v.startAngle = [self degreesToRadians:[self midAngle:segment.startAngleInDegrees a2:segment.endAngleInDegrees] + self.m_originDegrees];
 			v.radius = r1 - self.ringWidth / 2.0;
 			v.textColor = self.textColor;
 			v.font = self.font;
@@ -295,7 +298,7 @@
 		// if explicit segment widths are used, and
 		//	segments don't fill the circle, add a separator line at 360.0 degrees
 		if (self.theSegments.lastObject && floor(self.theSegments.lastObject.endAngleInDegrees) < 360.0) {
-			d2 = [self degreesToRadians:360.0 + self.originDegrees];
+			d2 = [self degreesToRadians:360.0 + self.m_originDegrees];
 			[pOuter addArcWithCenter:cntr radius:r1 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pInner addArcWithCenter:cntr radius:r2 startAngle:d1 endAngle:d2 clockwise:YES];
 			[pLines moveToPoint:pOuter.currentPoint];
@@ -390,10 +393,10 @@
 }
 
 - (void)animateSegmentFrom:(NSInteger)fromSeg to:(NSInteger)toSeg {
-	self.sourceDegreeStart = self.theSegments[fromSeg].startAngleInDegrees + self.originDegrees;
-	self.sourceDegreeEnd = self.theSegments[fromSeg].endAngleInDegrees + self.originDegrees;
-	self.targetDegreeStart = self.theSegments[toSeg].startAngleInDegrees + self.originDegrees;
-	self.targetDegreeEnd = self.theSegments[toSeg].endAngleInDegrees + self.originDegrees;
+	self.sourceDegreeStart = self.theSegments[fromSeg].startAngleInDegrees + self.m_originDegrees;
+	self.sourceDegreeEnd = self.theSegments[fromSeg].endAngleInDegrees + self.m_originDegrees;
+	self.targetDegreeStart = self.theSegments[toSeg].startAngleInDegrees + self.m_originDegrees;
+	self.targetDegreeEnd = self.theSegments[toSeg].endAngleInDegrees + self.m_originDegrees;
 	
 	double g1 = [self midAngle:self.sourceDegreeStart a2:self.sourceDegreeEnd];
 	double g2 = [self midAngle:self.targetDegreeStart a2:self.targetDegreeEnd];
@@ -431,8 +434,8 @@
 	if (t >= 1.0) {
 		// Animation complete
 		self.displayLink.paused = YES;
-		[self drawSegmentWithStartDegree:self.theSegments[self.m_selectedSegment].startAngleInDegrees + self.originDegrees
-							   endDegree:self.theSegments[self.m_selectedSegment].endAngleInDegrees + self.originDegrees];
+		[self drawSegmentWithStartDegree:self.theSegments[self.m_selectedSegment].startAngleInDegrees + self.m_originDegrees
+							   endDegree:self.theSegments[self.m_selectedSegment].endAngleInDegrees + self.m_originDegrees];
 		return;
 	}
 	
@@ -445,7 +448,7 @@
 }
 
 - (void)updateSegment:(NSInteger)index {
-	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees + self.originDegrees endDegree:_theSegments[index].endAngleInDegrees + self.originDegrees];
+	[self drawSegmentWithStartDegree:_theSegments[index].startAngleInDegrees + self.m_originDegrees endDegree:_theSegments[index].endAngleInDegrees + self.m_originDegrees];
 	self.m_selectedSegment = index;
 }
 

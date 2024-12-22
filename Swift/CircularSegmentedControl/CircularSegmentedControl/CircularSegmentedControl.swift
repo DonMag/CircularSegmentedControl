@@ -102,6 +102,7 @@ class CircularSegmentedControl: UIControl {
 	
 	// private properties
 	private var m_selectedSegment: Int = 0
+	private var m_originDegrees: Double = 0.0
 	private var m_touchIDX: Int = 0
 	private var m_needsLayout: Bool = true
 	
@@ -276,9 +277,11 @@ class CircularSegmentedControl: UIControl {
 		if topIndex >= 0 {
 			let topSeg = theSegments[topIndex]
 			let segW = topSeg.endAngleInDegrees - topSeg.startAngleInDegrees
-			originDegrees = -topSeg.startAngleInDegrees
-			originDegrees -= 90.0
-			originDegrees -= segW * 0.5
+			m_originDegrees = -topSeg.startAngleInDegrees
+			m_originDegrees -= 90.0
+			m_originDegrees -= segW * 0.5
+		} else {
+			m_originDegrees = originDegrees;
 		}
 
 		if !theSegments.isEmpty {
@@ -293,8 +296,8 @@ class CircularSegmentedControl: UIControl {
 				d1 = degreesToRadians(theSegments[i].startAngleInDegrees)
 				d2 = degreesToRadians(theSegments[i].endAngleInDegrees)
 
-				d1 += degreesToRadians(originDegrees)
-				d2 += degreesToRadians(originDegrees)
+				d1 += degreesToRadians(m_originDegrees)
+				d2 += degreesToRadians(m_originDegrees)
 				
 				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
@@ -324,7 +327,7 @@ class CircularSegmentedControl: UIControl {
 				
 				// configure the arc-text
 				v.text = theSegments[i].title
-				v.startAngle = degreesToRadians(midAngle(a1: theSegments[i].startAngleInDegrees, a2: theSegments[i].endAngleInDegrees) + originDegrees)
+				v.startAngle = degreesToRadians(midAngle(a1: theSegments[i].startAngleInDegrees, a2: theSegments[i].endAngleInDegrees) + m_originDegrees)
 				v.radius = r1 - ringWidth / 2.0
 				v.textColor = textColor
 				v.font = font
@@ -351,7 +354,7 @@ class CircularSegmentedControl: UIControl {
 			
 			// if segments don't fill the circle, add a separator line at 360.0 degrees
 			if let seg = theSegments.last, floor(seg.endAngleInDegrees) < 360.0 {
-				d2 = degreesToRadians(360.0 + originDegrees)
+				d2 = degreesToRadians(360.0 + m_originDegrees)
 				pOuter.addArc(withCenter: cntr, radius: r1, startAngle: d1, endAngle: d2, clockwise: true)
 				pInner.addArc(withCenter: cntr, radius: r2, startAngle: d1, endAngle: d2, clockwise: true)
 				pLines.move(to: pOuter.currentPoint)
@@ -470,10 +473,10 @@ class CircularSegmentedControl: UIControl {
 	}
 	
 	func animateSegment(from fromSeg: Int, to toSeg: Int) {
-		sourceDegreeStart = theSegments[fromSeg].startAngleInDegrees + originDegrees
-		sourceDegreeEnd = theSegments[fromSeg].endAngleInDegrees + originDegrees
-		targetDegreeStart = theSegments[toSeg].startAngleInDegrees + originDegrees
-		targetDegreeEnd = theSegments[toSeg].endAngleInDegrees + originDegrees
+		sourceDegreeStart = theSegments[fromSeg].startAngleInDegrees + m_originDegrees
+		sourceDegreeEnd = theSegments[fromSeg].endAngleInDegrees + m_originDegrees
+		targetDegreeStart = theSegments[toSeg].startAngleInDegrees + m_originDegrees
+		targetDegreeEnd = theSegments[toSeg].endAngleInDegrees + m_originDegrees
 		
 		let g1 = midAngle(a1: sourceDegreeStart, a2: sourceDegreeEnd)
 		let g2 = midAngle(a1: targetDegreeStart, a2: targetDegreeEnd)
@@ -511,7 +514,7 @@ class CircularSegmentedControl: UIControl {
 		if t >= 1.0 {
 			// Animation complete
 			displayLink?.isPaused = true
-			self.drawSegment(startDegree: theSegments[self.m_selectedSegment].startAngleInDegrees + originDegrees, endDegree: theSegments[self.m_selectedSegment].endAngleInDegrees + originDegrees)
+			self.drawSegment(startDegree: theSegments[self.m_selectedSegment].startAngleInDegrees + m_originDegrees, endDegree: theSegments[self.m_selectedSegment].endAngleInDegrees + m_originDegrees)
 			return
 		}
 		
@@ -524,7 +527,7 @@ class CircularSegmentedControl: UIControl {
 	}
 
 	func updateSegment(_ n: Int) {
-		drawSegment(startDegree: theSegments[n].startAngleInDegrees + originDegrees, endDegree: theSegments[n].endAngleInDegrees + originDegrees)
+		drawSegment(startDegree: theSegments[n].startAngleInDegrees + m_originDegrees, endDegree: theSegments[n].endAngleInDegrees + m_originDegrees)
 		m_selectedSegment = n
 	}
 	

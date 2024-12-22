@@ -49,17 +49,17 @@
 //	csc.ringStrokeColor = UIColor.clearColor;
 //	csc.separatorLinesColor = UIColor.clearColor;
 	
-	//csc.originDegrees = -45.0;
+	csc.originDegrees = -45.0;
 	
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-	NSLog(@"set 1");
 	
 	topIDX += 1;
 	if (topIDX >= csc.titles.count) {
 		topIDX = -1;
 	}
+	NSLog(@"set top %d", topIDX);
 	csc.topIndex = topIDX;
 	return;
 	

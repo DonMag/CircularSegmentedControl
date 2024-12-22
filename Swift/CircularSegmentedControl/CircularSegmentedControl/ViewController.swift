@@ -47,7 +47,7 @@ class ViewController: UIViewController {
 		cSeg.distribution = .DistributionEqual
 		cSeg.titles = (0..<6).map { String($0) }
 		
-		//cSeg.originDegrees = -45.0
+		cSeg.originDegrees = -45.0
 
 		//cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
 		//cSeg.textColor = .systemBlue
@@ -72,6 +72,7 @@ class ViewController: UIViewController {
 		if topIDX >= cSeg.titles.count {
 			topIDX = -1
 		}
+		print("set top", topIDX)
 		cSeg.topIndex = topIDX
 		return()
 		
