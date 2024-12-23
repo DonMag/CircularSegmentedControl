@@ -375,6 +375,8 @@ class CircularSegmentedControl: UIControl {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesBegan(touches, with: event)
+		
 		// don't allow a new selection while animation is in progress
 		if let dl = displayLink, !dl.isPaused {
 			return
@@ -398,6 +400,8 @@ class CircularSegmentedControl: UIControl {
 		}
 	}
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesMoved(touches, with: event)
+		
 		if m_touchIDX < 0 {
 			return
 		}
@@ -406,6 +410,7 @@ class CircularSegmentedControl: UIControl {
 		arcTexts[m_touchIDX].alpha = theSegments[m_touchIDX].path.contains(p) ? 0.4 : 1.0
 	}
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesEnded(touches, with: event)
 		if m_touchIDX < 0 {
 			return
 		}
@@ -419,6 +424,7 @@ class CircularSegmentedControl: UIControl {
 		}
 	}
 	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+		super.touchesCancelled(touches, with: event)
 		if m_touchIDX < 0 {
 			return
 		}

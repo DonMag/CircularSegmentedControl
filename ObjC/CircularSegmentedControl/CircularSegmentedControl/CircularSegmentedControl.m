@@ -571,6 +571,8 @@
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	[super touchesBegan:touches withEvent:event];
+	
 	// don't allow a new selection while animation is in progress
 	if (self.displayLink && !self.displayLink.isPaused) {
 		return;
@@ -595,6 +597,8 @@
 	}
 }
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	[super touchesMoved:touches withEvent:event];
+	
 	if (self.m_touchIDX < 0) {
 		return;
 	}
@@ -604,6 +608,8 @@
 	((UIView *)self.arcTexts[self.m_touchIDX]).alpha = [segment.path containsPoint:p] ? 0.4 : 1.0;
 }
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	[super touchesEnded:touches withEvent:event];
+	
 	if (self.m_touchIDX < 0) {
 		return;
 	}
@@ -618,6 +624,8 @@
 	}
 }
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	[super touchesCancelled:touches withEvent:event];
+	
 	if (self.m_touchIDX < 0) {
 		return;
 	}
