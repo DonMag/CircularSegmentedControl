@@ -34,6 +34,8 @@ typedef NS_ENUM(NSInteger, Distribution) {
 @property (nonatomic, assign) CGFloat cornerRadius;
 @property (nonatomic, assign) NSInteger selectedSegmentIndex;
 
+- (void)setSelectedSegmentIndex:(NSInteger)index animated:(BOOL)animated;
+
 @end
 
 NS_ASSUME_NONNULL_END

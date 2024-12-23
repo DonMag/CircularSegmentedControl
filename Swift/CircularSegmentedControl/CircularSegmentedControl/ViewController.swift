@@ -46,7 +46,7 @@ class ViewController: UIViewController {
 		cSeg.segmentWidthsInDegrees = [30, 30, 30, 0, 30, 30]
 		cSeg.distribution = .DistributionEqual
 		cSeg.titles = (0..<6).map { String($0) }
-		
+		print("tc:", cSeg.titles.count)
 		cSeg.originDegrees = -45.0
 
 		//cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
@@ -57,6 +57,9 @@ class ViewController: UIViewController {
 		
 		cSeg.addTarget(self, action: #selector(valChanged(_:)), for: .valueChanged)
 		
+		//cSeg.setSelectedSegmentIndex(3, animated: true)
+		
+		cSeg.selectedSegmentIndex = 2
 	}
 
 	@objc func valChanged(_ csc: CircularSegmentedControl) {
@@ -67,6 +70,11 @@ class ViewController: UIViewController {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let t = touches.first else { return }
 		let p = t.location(in: view)
+
+		//cSeg.setSelectedSegmentIndex(6, animated: true)
+
+		cSeg.selectedSegmentIndex = 5
+		return()
 		
 		topIDX += 1
 		if topIDX >= cSeg.titles.count {

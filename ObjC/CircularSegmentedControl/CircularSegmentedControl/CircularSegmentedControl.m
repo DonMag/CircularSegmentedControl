@@ -470,10 +470,16 @@
 	[self setSelectedSegmentIndex:index animated:NO];
 }
 - (void)setSelectedSegmentIndex:(NSInteger)index animated:(BOOL)animated {
-	if (animated && self.m_selectedSegment > -1) {
-		[self animateSegmentFrom:self.m_selectedSegment to:index];
-	} else {
-		[self updateSegment:index];
+	if (index < 0 || index > self.titles.count - 1) {
+		// out of range, ignore
+		return;
+	}
+	if (!self.m_needsLayout) {
+		if (animated && self.m_selectedSegment > -1) {
+			[self animateSegmentFrom:self.m_selectedSegment to:index];
+		} else {
+			[self updateSegment:index];
+		}
 	}
 	self.m_selectedSegment = index;
 }

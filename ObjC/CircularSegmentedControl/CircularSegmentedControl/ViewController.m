@@ -36,7 +36,7 @@
 		[csc.heightAnchor constraintEqualToAnchor:csc.widthAnchor],
 	]];
 	
-	csc.titles = @[@"A", @"B", @"C", @"D", @"E", @"F"];
+	//csc.titles = @[@"A", @"B", @"C", @"D", @"E", @"F"];
 	//csc.titles = [[SampleSegmentTitles new] daysOfTheWeek];
 	csc.titles = [[SampleSegmentTitles new] alphabetWithNumChars:7];
 	csc.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightLight];
@@ -51,9 +51,14 @@
 	
 	csc.originDegrees = -45.0;
 	
+	[csc setSelectedSegmentIndex:2 animated:YES];
+	
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+	
+	[csc setSelectedSegmentIndex:7 animated:YES];
+	return;
 	
 	topIDX += 1;
 	if (topIDX >= csc.titles.count) {

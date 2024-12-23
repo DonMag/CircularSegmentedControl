@@ -85,17 +85,23 @@ class CircularSegmentedControl: UIControl {
 	
 	public var selectedSegmentIndex: Int {
 		set {
-			updateSegment(newValue)
+			self.setSelectedSegmentIndex(newValue, animated: false)
 		}
 		get {
 			return m_selectedSegment
 		}
 	}
 	public func setSelectedSegmentIndex(_ n: Int, animated: Bool) {
-		if animated, m_selectedSegment > -1 {
-			animateSegment(from: m_selectedSegment, to: n)
-		} else {
-			updateSegment(n)
+		if n < 0 || n > titles.count - 1 {
+			// out of range, ignore
+			return()
+		}
+		if !m_needsLayout {
+			if animated, m_selectedSegment > -1 {
+				animateSegment(from: m_selectedSegment, to: n)
+			} else {
+				updateSegment(n)
+			}
 		}
 		m_selectedSegment = n
 	}
