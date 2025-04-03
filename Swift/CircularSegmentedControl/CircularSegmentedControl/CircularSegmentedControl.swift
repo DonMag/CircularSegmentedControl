@@ -455,13 +455,13 @@ class CircularSegmentedControl: UIControl {
 		var angle = endAngle - innerAngularDelta
 		var cornerStartAngle = angle + .pi * (clockwise ? 1 : -1)
 		var cornerEndAngle = endAngle + .pi / 2 * (clockwise ? 1 : -1)
-		var cornerCenter = CGPoint(x: center.x + (innerRadius + cornerRadius) * cos(angle), y: center.y + (innerRadius + cornerRadius) * sin(angle))
+		var cornerCenter = CGPoint(x: center.x + ((innerRadius + cornerRadius) * cos(angle)), y: center.y + (innerRadius + cornerRadius) * sin(angle))
 		path.addArc(withCenter: cornerCenter, radius: cornerRadius, startAngle: cornerStartAngle, endAngle: cornerEndAngle, clockwise: !clockwise)
 		
 		angle = endAngle - outerAngularDelta
 		cornerStartAngle = cornerEndAngle
 		cornerEndAngle = endAngle - outerAngularDelta
-		cornerCenter = CGPoint(x: center.x + (outerRadius - cornerRadius) * cos(angle), y: center.y + (outerRadius - cornerRadius) * sin(angle))
+		cornerCenter = CGPoint(x: center.x + ((outerRadius - cornerRadius) * cos(angle)), y: center.y + (outerRadius - cornerRadius) * sin(angle))
 		path.addArc(withCenter: cornerCenter, radius: cornerRadius, startAngle: cornerStartAngle, endAngle: cornerEndAngle, clockwise: !clockwise)
 		
 		path.addArc(withCenter: center, radius: outerRadius, startAngle: endAngle - outerAngularDelta, endAngle: startAngle + outerAngularDelta, clockwise: !clockwise)
@@ -469,13 +469,13 @@ class CircularSegmentedControl: UIControl {
 		angle = startAngle + outerAngularDelta
 		cornerStartAngle = angle
 		cornerEndAngle = startAngle - .pi / 2 * (clockwise ? 1 : -1)
-		cornerCenter = CGPoint(x: center.x + (outerRadius - cornerRadius) * cos(angle), y: center.y + (outerRadius - cornerRadius) * sin(angle))
+		cornerCenter = CGPoint(x: center.x + ((outerRadius - cornerRadius) * cos(angle)), y: center.y + (outerRadius - cornerRadius) * sin(angle))
 		path.addArc(withCenter: cornerCenter, radius: cornerRadius, startAngle: cornerStartAngle, endAngle: cornerEndAngle, clockwise: !clockwise)
 		
 		angle = startAngle + innerAngularDelta
 		cornerStartAngle = cornerEndAngle
 		cornerEndAngle = angle + .pi * (clockwise ? 1 : -1)
-		cornerCenter = CGPoint(x: center.x + (innerRadius + cornerRadius) * cos(angle), y: center.y + (innerRadius + cornerRadius) * sin(angle))
+		cornerCenter = CGPoint(x: center.x + ((innerRadius + cornerRadius) * cos(angle)), y: center.y + (innerRadius + cornerRadius) * sin(angle))
 		path.addArc(withCenter: cornerCenter, radius: cornerRadius, startAngle: cornerStartAngle, endAngle: cornerEndAngle, clockwise: !clockwise)
 		
 		path.close()
