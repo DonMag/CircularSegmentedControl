@@ -46,7 +46,7 @@ class ViewController: UIViewController {
 		cSeg.segmentWidthsInDegrees = [30, 30, 30, 0, 30, 30]
 		cSeg.distribution = .DistributionEqual
 		cSeg.titles = (0..<6).map { String($0) }
-		print("tc:", cSeg.titles.count)
+		
 		cSeg.originDegrees = -45.0
 
 		//cSeg.font = .systemFont(ofSize: 15.0, weight: .bold)
@@ -66,29 +66,5 @@ class ViewController: UIViewController {
 		print("Segment Changed:", csc.selectedSegmentIndex)
 	}
 
-	var topIDX: Int = -1
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let t = touches.first else { return }
-		let p = t.location(in: view)
-
-		//cSeg.setSelectedSegmentIndex(6, animated: true)
-
-		cSeg.selectedSegmentIndex = 5
-		return()
-		
-		topIDX += 1
-		if topIDX >= cSeg.titles.count {
-			topIDX = -1
-		}
-		print("set top", topIDX)
-		cSeg.topIndex = topIDX
-		return()
-		
-		if p.x < view.frame.midX {
-			cSeg.setSelectedSegmentIndex(1, animated: true)
-		} else {
-			cSeg.selectedSegmentIndex = 3
-		}
-	}
 }
 

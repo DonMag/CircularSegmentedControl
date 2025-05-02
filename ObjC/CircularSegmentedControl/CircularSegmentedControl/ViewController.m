@@ -55,22 +55,4 @@
 	
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-	
-	[csc setSelectedSegmentIndex:7 animated:YES];
-	return;
-	
-	topIDX += 1;
-	if (topIDX >= csc.titles.count) {
-		topIDX = -1;
-	}
-	NSLog(@"set top %d", topIDX);
-	csc.topIndex = topIDX;
-	return;
-	
-	csc.textColor = UIColor.blueColor;
-	csc.font = [UIFont systemFontOfSize:12.0 weight:UIFontWeightBold];
-	csc.ringWidth = 60.0;
-}
-
 @end
